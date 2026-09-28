@@ -12,7 +12,7 @@ void main() {
   });
 
   testWidgets('resolve o 4×4 no modo clássico', (tester) async {
-    await tester.pumpWidget(const RainhasApp());
+    await tester.pumpWidget(const EightQueensApp());
     await tester.tap(find.text('Modo Clássico'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Tabuleiro 4×4'));

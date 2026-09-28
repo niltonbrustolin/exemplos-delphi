@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../game/solver.dart';
 import '../services/ads.dart';
 import '../services/progress.dart';
-import 'game_screen.dart';
+import '../widgets/game_ui.dart';
+import 'queens_game_screen.dart';
 
 const classicSizes = [4, 5, 6, 7, 8, 9, 10, 11, 12];
 
@@ -18,7 +19,7 @@ class _ClassicSelectScreenState extends State<ClassicSelectScreen> {
   Future<void> _play(int n) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => GameScreen.classic(n: n)),
+      MaterialPageRoute(builder: (_) => QueensGameScreen.classic(n: n)),
     );
     setState(() {}); // atualiza o progresso
   }

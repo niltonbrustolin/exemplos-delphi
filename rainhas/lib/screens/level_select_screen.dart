@@ -1,51 +1,72 @@
 import 'package:flutter/material.dart';
 
-import '../game/challenge.dart';
+import '../game/levels.dart';
 import '../services/ads.dart';
 import '../services/progress.dart';
-import 'game_screen.dart';
+import 'help.dart';
+import 'routes.dart';
 
-class ChallengeSelectScreen extends StatefulWidget {
-  const ChallengeSelectScreen({super.key});
+/// Lista de fases de um modo, em trilha única.
+class LevelSelectScreen extends StatefulWidget {
+  final GameMode mode;
+
+  const LevelSelectScreen({super.key, required this.mode});
 
   @override
-  State<ChallengeSelectScreen> createState() => _ChallengeSelectScreenState();
+  State<LevelSelectScreen> createState() => _LevelSelectScreenState();
 }
 
-class _ChallengeSelectScreenState extends State<ChallengeSelectScreen> {
-  Future<void> _play(int n, int number) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) =>
-            GameScreen.challenge(challenge: generateChallenge(n, number)),
-      ),
-    );
-    setState(() {}); // atualiza estrelas e desbloqueios
+class _LevelSelectScreenState extends State<LevelSelectScreen> {
+  Future<void> _play(LevelRef level) async {
+    await openLevel(context, level);
+    if (mounted) setState(() {}); // atualiza estrelas e desbloqueios
   }
 
   @override
   Widget build(BuildContext context) {
+    final mode = widget.mode;
     final progress = Progress.instance;
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Desafios')),
+      appBar: AppBar(
+        title: Text(mode.title),
+        actions: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: Row(
+                children: [
+                  const Icon(Icons.star_rounded, color: Colors.amber),
+                  Text(
+                    ' ${progress.starsInMode(mode)}/${mode.totalLevels * 3}',
+                  ),
+                ],
+              ),
+            ),
+          ),
+          IconButton(
+            tooltip: 'Como jogar',
+            onPressed: () => showModeHelp(context, mode),
+            icon: const Icon(Icons.help_outline),
+          ),
+        ],
+      ),
       bottomNavigationBar: const BannerAdBox(),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          for (final n in challengeSizes) ...[
+          for (final n in mode.sizes) ...[
             Padding(
               padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
               child: Row(
                 children: [
                   Text('Tabuleiro $n×$n', style: theme.textTheme.titleLarge),
                   const Spacer(),
-                  const Icon(Icons.star_rounded, color: Colors.amber),
-                  Text(
-                    ' ${_totalStars(progress, n)} / ${3 * challengesPerSize}',
-                    style: theme.textTheme.titleMedium,
-                  ),
+                  if (!progress.isUnlocked(LevelRef(mode, n, 1)))
+                    Text(
+                      'Vença o tabuleiro anterior',
+                      style: theme.textTheme.bodySmall,
+                    ),
                 ],
               ),
             ),
@@ -53,12 +74,12 @@ class _ChallengeSelectScreenState extends State<ChallengeSelectScreen> {
               spacing: 10,
               runSpacing: 10,
               children: [
-                for (var k = 1; k <= challengesPerSize; k++)
+                for (var k = 1; k <= mode.perSize; k++)
                   _LevelButton(
                     number: k,
-                    stars: progress.stars(generateChallenge(n, k)),
-                    unlocked: progress.isUnlocked(n, k),
-                    onTap: () => _play(n, k),
+                    stars: progress.stars(LevelRef(mode, n, k)),
+                    unlocked: progress.isUnlocked(LevelRef(mode, n, k)),
+                    onTap: () => _play(LevelRef(mode, n, k)),
                   ),
               ],
             ),
@@ -67,11 +88,6 @@ class _ChallengeSelectScreenState extends State<ChallengeSelectScreen> {
       ),
     );
   }
-
-  int _totalStars(Progress progress, int n) => [
-    for (var k = 1; k <= challengesPerSize; k++)
-      progress.stars(generateChallenge(n, k)),
-  ].fold(0, (a, b) => a + b);
 }
 
 class _LevelButton extends StatelessWidget {

@@ -171,6 +171,44 @@ class MeshBuilder {
     );
   }
 
+  /// Polígono 2D do plano (z, y) — perfil lateral — extrudado no eixo X
+  /// com espessura total `2 * halfWidth`.
+  void extrude(List<(double, double)> polygon, double halfWidth) {
+    final pts = _ccw(polygon);
+    final hw = halfWidth;
+    // Tampas laterais.
+    for (final (i, j, k) in triangulate(pts)) {
+      final (za, ya) = pts[i];
+      final (zb, yb) = pts[j];
+      final (zc, yc) = pts[k];
+      triangle(
+        Vec3(hw, ya, za),
+        Vec3(hw, yb, zb),
+        Vec3(hw, yc, zc),
+        const Vec3(1, 0, 0),
+      );
+      triangle(
+        Vec3(-hw, ya, za),
+        Vec3(-hw, yc, zc),
+        Vec3(-hw, yb, zb),
+        const Vec3(-1, 0, 0),
+      );
+    }
+    // Paredes: normal para fora do contorno (anti-horário no plano z, y).
+    for (var i = 0; i < pts.length; i++) {
+      final (z0, y0) = pts[i];
+      final (z1, y1) = pts[(i + 1) % pts.length];
+      final normal = Vec3(0, -(z1 - z0), y1 - y0);
+      quad(
+        Vec3(-hw, y0, z0),
+        Vec3(hw, y0, z0),
+        Vec3(hw, y1, z1),
+        Vec3(-hw, y1, z1),
+        normal,
+      );
+    }
+  }
+
   Mesh build() => Mesh(
     Float32List.fromList(_v),
     Float32List.fromList(_fn),
@@ -257,3 +295,102 @@ Mesh frameMesh(double size, double thickness) {
   rect(h - t, -h + t, h, h - t);
   return b.build();
 }
+
+/// Garante a ordem anti-horária do polígono.
+List<(double, double)> _ccw(List<(double, double)> p) {
+  var area = 0.0;
+  for (var i = 0; i < p.length; i++) {
+    final (x0, y0) = p[i];
+    final (x1, y1) = p[(i + 1) % p.length];
+    area += x0 * y1 - x1 * y0;
+  }
+  return area >= 0 ? p : p.reversed.toList();
+}
+
+/// Triangulação por "corte de orelhas" de um polígono simples anti-horário.
+List<(int, int, int)> triangulate(List<(double, double)> p) {
+  final idx = List<int>.generate(p.length, (i) => i);
+  final result = <(int, int, int)>[];
+  double cross((double, double) a, (double, double) b, (double, double) c) =>
+      (b.$1 - a.$1) * (c.$2 - a.$2) - (b.$2 - a.$2) * (c.$1 - a.$1);
+  bool inside(
+    (double, double) q,
+    (double, double) a,
+    (double, double) b,
+    (double, double) c,
+  ) => cross(a, b, q) >= 0 && cross(b, c, q) >= 0 && cross(c, a, q) >= 0;
+
+  var guard = 0;
+  while (idx.length > 3 && guard++ < 10000) {
+    var cut = false;
+    for (var i = 0; i < idx.length; i++) {
+      final ia = idx[(i + idx.length - 1) % idx.length];
+      final ib = idx[i];
+      final ic = idx[(i + 1) % idx.length];
+      final a = p[ia], b = p[ib], c = p[ic];
+      if (cross(a, b, c) <= 0) continue; // vértice côncavo
+      final blocked = idx.any(
+        (j) => j != ia && j != ib && j != ic && inside(p[j], a, b, c),
+      );
+      if (blocked) continue;
+      result.add((ia, ib, ic));
+      idx.removeAt(i);
+      cut = true;
+      break;
+    }
+    if (!cut) break;
+  }
+  if (idx.length == 3) result.add((idx[0], idx[1], idx[2]));
+  return result;
+}
+
+/// Altura do cavalo (em casas do tabuleiro).
+const knightHeight = 1.1;
+
+/// Cavalo de xadrez: base torneada e cabeça extrudada, olhando para +z.
+final Mesh knightMesh = () {
+  final b = MeshBuilder()
+    ..lathe(const [
+      (0.00, 0.00),
+      (0.36, 0.00),
+      (0.36, 0.05),
+      (0.33, 0.09),
+      (0.30, 0.12),
+      (0.30, 0.15),
+      (0.25, 0.19),
+      (0.23, 0.24),
+      (0.26, 0.27),
+      (0.00, 0.29),
+    ], segments: 22)
+    ..extrude(const [
+      (-0.22, 0.27),
+      (0.20, 0.27),
+      (0.15, 0.44),
+      (0.12, 0.56),
+      (0.30, 0.64),
+      (0.38, 0.70),
+      (0.40, 0.77),
+      (0.35, 0.84),
+      (0.16, 0.96),
+      (0.11, 1.08),
+      (0.04, 1.01),
+      (-0.03, 1.10),
+      (-0.11, 0.99),
+      (-0.21, 0.82),
+      (-0.26, 0.58),
+      (-0.25, 0.38),
+    ], 0.12)
+    ..sphere(const Vec3(0.125, 0.86, 0.22), 0.025, slices: 6, stacks: 4)
+    ..sphere(const Vec3(-0.125, 0.86, 0.22), 0.025, slices: 6, stacks: 4);
+  return b.build();
+}();
+
+/// Bloco que ocupa uma casa bloqueada.
+final Mesh blockMesh = () {
+  final b = MeshBuilder();
+  const h = 0.47;
+  b.box(const Vec3(-h, 0, -h), const Vec3(h, 0.22, h), 0xFFFFFFFF);
+  final m = b.build();
+  // Sem cor por triângulo: a cor vem da instância (tema).
+  return Mesh(m.vertices, m.faceNormals, m.vertexNormals);
+}();

@@ -1,133 +1,209 @@
 import 'package:flutter/material.dart';
 
+import '../config/app_info.dart';
+import '../game/levels.dart';
+import '../services/progress.dart';
 import '../widgets/board_3d.dart';
-import 'challenge_select_screen.dart';
+import 'about_screen.dart';
 import 'classic_select_screen.dart';
+import 'help.dart';
+import 'level_select_screen.dart';
+import 'store_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  Future<void> _go(Widget screen) async {
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+    if (mounted) setState(() {}); // atualiza dicas e estrelas
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final progress = Progress.instance;
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Center(child: SpinningQueen(size: 170)),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Rainhas',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.displayMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Chip(
+                      avatar: const Icon(Icons.lightbulb, size: 18),
+                      label: Text('${progress.hints}'),
                     ),
+                    const SizedBox(width: 8),
+                    Chip(
+                      avatar: const Icon(
+                        Icons.star_rounded,
+                        size: 18,
+                        color: Colors.amber,
+                      ),
+                      label: Text('${progress.totalStars}'),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SpinningPiece(size: 120, color: progress.theme.player),
+                    SpinningPiece(
+                      size: 120,
+                      color: progress.theme.player,
+                      kind: PieceKind.knight,
+                    ),
+                  ],
+                ),
+                Text(
+                  AppInfo.appName,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.displayMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
-                  Text(
-                    'O clássico quebra-cabeça do xadrez',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 48),
-                  _MenuButton(
-                    icon: Icons.grid_on,
-                    label: 'Modo Clássico',
-                    onPressed: () => _go(context, const ClassicSelectScreen()),
-                  ),
-                  _MenuButton(
-                    icon: Icons.extension,
-                    label: 'Desafios',
-                    onPressed: () =>
-                        _go(context, const ChallengeSelectScreen()),
-                  ),
-                  _MenuButton(
-                    icon: Icons.help_outline,
-                    label: 'Como jogar',
-                    outlined: true,
-                    onPressed: () => showHowToPlay(context),
-                  ),
-                ],
-              ),
+                ),
+                Text(
+                  'Quebra-cabeças de xadrez em 3D',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleMedium,
+                ),
+                const SizedBox(height: 24),
+                _Section('Rainhas'),
+                _MenuButton(
+                  icon: Icons.grid_on,
+                  label: 'Modo Clássico',
+                  onPressed: () => _go(const ClassicSelectScreen()),
+                ),
+                _MenuButton(
+                  icon: Icons.extension,
+                  label: 'Desafios',
+                  onPressed: () =>
+                      _go(const LevelSelectScreen(mode: GameMode.queens)),
+                ),
+                _Section('Cavalo'),
+                _MenuButton(
+                  icon: Icons.route,
+                  label: 'Passeio do Cavalo',
+                  onPressed: () =>
+                      _go(const LevelSelectScreen(mode: GameMode.tour)),
+                ),
+                _MenuButton(
+                  icon: Icons.shield_outlined,
+                  label: 'Cavalos sem Ataque',
+                  onPressed: () =>
+                      _go(const LevelSelectScreen(mode: GameMode.knights)),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _IconAction(
+                      icon: Icons.storefront,
+                      label: 'Loja',
+                      onTap: () => _go(const StoreScreen()),
+                    ),
+                    _IconAction(
+                      icon: Icons.help_outline,
+                      label: 'Como jogar',
+                      onTap: () => showAllHelp(context),
+                    ),
+                    _IconAction(
+                      icon: Icons.info_outline,
+                      label: 'Sobre',
+                      onTap: () => _go(const AboutScreen()),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
       ),
     );
   }
+}
 
-  void _go(BuildContext context, Widget screen) =>
-      Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+class _Section extends StatelessWidget {
+  final String text;
+
+  const _Section(this.text);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 8, bottom: 8, left: 4),
+    child: Text(text, style: Theme.of(context).textTheme.titleSmall),
+  );
 }
 
 class _MenuButton extends StatelessWidget {
   final IconData icon;
   final String label;
-  final bool outlined;
   final VoidCallback onPressed;
 
   const _MenuButton({
     required this.icon,
     required this.label,
     required this.onPressed,
-    this.outlined = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final style = ButtonStyle(
-      padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 18)),
-      textStyle: WidgetStatePropertyAll(
-        Theme.of(context).textTheme.titleMedium,
-      ),
-    );
-    final child = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [Icon(icon), const SizedBox(width: 12), Text(label)],
-    );
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: outlined
-          ? OutlinedButton(style: style, onPressed: onPressed, child: child)
-          : FilledButton(style: style, onPressed: onPressed, child: child),
+      padding: const EdgeInsets.only(bottom: 10),
+      child: FilledButton(
+        style: ButtonStyle(
+          padding: const WidgetStatePropertyAll(
+            EdgeInsets.symmetric(vertical: 16),
+          ),
+          textStyle: WidgetStatePropertyAll(
+            Theme.of(context).textTheme.titleMedium,
+          ),
+        ),
+        onPressed: onPressed,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [Icon(icon), const SizedBox(width: 12), Text(label)],
+        ),
+      ),
     );
   }
 }
 
-void showHowToPlay(BuildContext context) {
-  showDialog<void>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Como jogar'),
-      content: const SingleChildScrollView(
-        child: Text(
-          'Coloque N rainhas num tabuleiro N×N sem que nenhuma ataque outra.\n\n'
-          'A rainha ataca em linha reta: na mesma linha, na mesma coluna e '
-          'nas diagonais.\n\n'
-          '• Toque numa casa para colocar ou tirar uma rainha.\n'
-          '• Arraste para girar o tabuleiro e use dois dedos para aproximar.\n'
-          '• Rainhas em vermelho estão se atacando.\n'
-          '• O botão de olho marca as casas que estão sob ataque.\n'
-          '• Use a Dica quando travar.\n\n'
-          'Modo Clássico: o tabuleiro começa vazio. Existem várias soluções '
-          'para cada tamanho — no 8×8 são 92. Quantas você consegue achar?\n\n'
-          'Desafios: algumas rainhas (em cinza) já vêm fixas e só existe um '
-          'jeito de completar o tabuleiro. Termine sem dicas para ganhar '
-          '3 estrelas.',
+class _IconAction extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _IconAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            Icon(icon, size: 30),
+            const SizedBox(height: 4),
+            Text(label),
+          ],
         ),
       ),
-      actions: [
-        FilledButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Entendi'),
-        ),
-      ],
-    ),
-  );
+    );
+  }
 }

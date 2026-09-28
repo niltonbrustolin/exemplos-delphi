@@ -63,6 +63,3 @@ Challenge generateChallenge(int n, int number) {
     }, solution);
   });
 }
-
-/// Estrelas ganhas conforme o número de dicas usadas.
-int starsFor(int hintsUsed) => hintsUsed == 0 ? 3 : (hintsUsed == 1 ? 2 : 1);

@@ -18,6 +18,9 @@ class Instance {
   /// Sem iluminação: usa a cor como está (sombras, marcas).
   final bool unlit;
 
+  /// Rotação em torno do eixo vertical (radianos).
+  final double rotY;
+
   const Instance(
     this.mesh,
     this.position, {
@@ -25,6 +28,7 @@ class Instance {
     this.color = const Color(0xFFFFFFFF),
     this.shine = 0,
     this.unlit = false,
+    this.rotY = 0,
   });
 }
 
@@ -49,6 +53,7 @@ class Renderer {
     Canvas canvas, {
     List<Instance> flat = const [],
     List<Instance> sorted = const [],
+    void Function(Canvas canvas)? afterFlat,
   }) {
     _pos.clear();
     _col.clear();
@@ -56,6 +61,7 @@ class Renderer {
       _emit(inst, null);
     }
     _flush(canvas);
+    afterFlat?.call(canvas);
 
     _depth.clear();
     for (final inst in sorted) {
@@ -102,18 +108,24 @@ class Renderer {
     final s = inst.scale, o = inst.position;
     final cam = camera;
     final eye = cam.eye;
+    final rotated = inst.rotY != 0;
+    final rc = cos(inst.rotY), rs = sin(inst.rotY);
+    // Gira (x, z) em torno do eixo Y.
+    double rx(double x, double z) => rotated ? x * rc + z * rs : x;
+    double rz(double x, double z) => rotated ? -x * rs + z * rc : z;
     for (var t = 0; t < m.triangleCount; t++) {
       final b = t * 9;
-      final ax = v[b] * s + o.x,
+      final ax = rx(v[b], v[b + 2]) * s + o.x,
           ay = v[b + 1] * s + o.y,
-          az = v[b + 2] * s + o.z;
-      final bx = v[b + 3] * s + o.x,
+          az = rz(v[b], v[b + 2]) * s + o.z;
+      final bx = rx(v[b + 3], v[b + 5]) * s + o.x,
           by = v[b + 4] * s + o.y,
-          bz = v[b + 5] * s + o.z;
-      final cx = v[b + 6] * s + o.x,
+          bz = rz(v[b + 3], v[b + 5]) * s + o.z;
+      final cx = rx(v[b + 6], v[b + 8]) * s + o.x,
           cy = v[b + 7] * s + o.y,
-          cz = v[b + 8] * s + o.z;
-      final nx = n[t * 3], ny = n[t * 3 + 1], nz = n[t * 3 + 2];
+          cz = rz(v[b + 6], v[b + 8]) * s + o.z;
+      final f = t * 3;
+      final nx = rx(n[f], n[f + 2]), ny = n[f + 1], nz = rz(n[f], n[f + 2]);
 
       // Descarta faces viradas para trás.
       final mx = (ax + bx + cx) / 3,
@@ -131,9 +143,14 @@ class Renderer {
       final view = Vec3(vx, vy, vz).normalized;
       for (var j = 0; j < 3; j++) {
         final k = t * 9 + j * 3;
+        final normal = Vec3(
+          rx(vn[k], vn[k + 2]),
+          vn[k + 1],
+          rz(vn[k], vn[k + 2]),
+        );
         final color = inst.unlit
             ? base
-            : _shade(base, Vec3(vn[k], vn[k + 1], vn[k + 2]), view, inst.shine);
+            : _shade(base, normal, view, inst.shine);
         _col.add(color.toARGB32());
       }
       _pos.addAll([pa.dx, pa.dy, pb.dx, pb.dy, pc.dx, pc.dy]);

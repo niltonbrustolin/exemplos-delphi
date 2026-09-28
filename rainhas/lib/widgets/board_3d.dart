@@ -7,20 +7,45 @@ import '../game/board.dart';
 import '../render3d/math3d.dart';
 import '../render3d/meshes.dart';
 import '../render3d/renderer.dart';
+import '../render3d/themes.dart';
+import '../services/progress.dart';
 
-const _frameColor = Color(0xFF4E342E);
-const _lightCell = Color(0xFFE9D3AE);
-const _darkCell = Color(0xFF9C6B45);
-const _playerQueen = Color(0xFFF3E6CC);
-const _fixedQueen = Color(0xFF363B47);
-const _conflictQueen = Color(0xFFE53935);
-const _hintColor = Color(0xFF43A047);
-const _attackColor = Color(0xAAB71C1C);
+const _conflictColor = Color(0xFFE53935);
 const _shadowColor = Color(0x59000000);
 
-const _queenScale = 0.9;
 const _dropDuration = Duration(milliseconds: 550);
+const _hopDuration = Duration(milliseconds: 380);
 const defaultPitch = 1.1;
+
+/// Câmera mais baixa nos modos do cavalo, para ver o perfil da peça.
+const knightPitch = 0.82;
+
+enum PieceKind { queen, knight }
+
+/// Papel da peça, que define a cor dela.
+enum PieceRole { player, fixed, conflict }
+
+/// Uma peça no tabuleiro. O [id] identifica a peça entre um quadro e outro:
+/// peça nova cai no tabuleiro; peça que mudou de casa pula até a nova casa.
+class BoardPiece {
+  final Object id;
+  final Pos pos;
+  final PieceKind kind;
+  final PieceRole role;
+
+  const BoardPiece(this.id, this.pos, this.kind, this.role);
+}
+
+enum MarkKind { dot, frame, fill }
+
+/// Marca desenhada sobre uma casa (dica, casa atacada, casa visitada...).
+class CellMark {
+  final Pos pos;
+  final MarkKind kind;
+  final Color color;
+
+  const CellMark(this.pos, this.kind, this.color);
+}
 
 /// Centro da casa no mundo 3D (linha 0 fica ao fundo).
 Vec3 cellCenter(int n, Pos p) =>
@@ -44,54 +69,90 @@ Camera boardCamera(
   );
 }
 
-final Map<int, Mesh> _boardMeshes = {};
+Mesh pieceMesh(PieceKind kind) =>
+    kind == PieceKind.queen ? queenMesh : knightMesh;
 
-Mesh _boardMesh(int n) => _boardMeshes.putIfAbsent(n, () {
-  final h = n / 2;
-  final b = MeshBuilder()
-    ..box(
-      Vec3(-h - 0.45, -0.35, -h - 0.45),
-      Vec3(h + 0.45, 0, h + 0.45),
-      _frameColor.toARGB32(),
-    );
-  for (var r = 0; r < n; r++) {
-    for (var c = 0; c < n; c++) {
-      final x0 = c - h, z0 = r - h;
-      b.quad(
-        Vec3(x0, 0, z0),
-        Vec3(x0 + 1, 0, z0),
-        Vec3(x0 + 1, 0, z0 + 1),
-        Vec3(x0, 0, z0 + 1),
-        const Vec3(0, 1, 0),
-        ((r + c).isEven ? _lightCell : _darkCell).toARGB32(),
-      );
-    }
-  }
-  return b.build();
-});
+double pieceHeight(PieceKind kind) =>
+    kind == PieceKind.queen ? queenHeight : knightHeight;
 
-/// Tabuleiro 3D interativo: toque numa casa para colocar/tirar uma rainha,
-/// arraste para girar a câmera e use dois dedos para aproximar.
+/// Ângulo que mostra o cavalo de perfil, virado um pouco para a câmera.
+double knightFacing(double cameraYaw) => cameraYaw + pi / 2 - 0.55;
+
+/// Escala da peça no tabuleiro (o cavalo é um pouco maior para aparecer bem).
+double pieceScale(PieceKind kind) => kind == PieceKind.queen ? 0.9 : 1.02;
+
+Color pieceColor(BoardTheme theme, PieceRole role) => switch (role) {
+  PieceRole.player => theme.player,
+  PieceRole.fixed => theme.fixed,
+  PieceRole.conflict => _conflictColor,
+};
+
+final Map<String, Mesh> _boardMeshes = {};
+
+Mesh _boardMesh(int n, BoardTheme theme) =>
+    _boardMeshes.putIfAbsent('$n/${theme.id}', () {
+      final h = n / 2;
+      final b = MeshBuilder()
+        ..box(
+          Vec3(-h - 0.45, -0.35, -h - 0.45),
+          Vec3(h + 0.45, 0, h + 0.45),
+          theme.frame.toARGB32(),
+        );
+      for (var r = 0; r < n; r++) {
+        for (var c = 0; c < n; c++) {
+          final x0 = c - h, z0 = r - h;
+          b.quad(
+            Vec3(x0, 0, z0),
+            Vec3(x0 + 1, 0, z0),
+            Vec3(x0 + 1, 0, z0 + 1),
+            Vec3(x0, 0, z0 + 1),
+            const Vec3(0, 1, 0),
+            ((r + c).isEven ? theme.light : theme.dark).toARGB32(),
+          );
+        }
+      }
+      return b.build();
+    });
+
+class _Anim {
+  final Pos? from;
+  final Duration start;
+
+  const _Anim(this.from, this.start);
+}
+
+/// Tabuleiro 3D interativo: toque numa casa para jogar, arraste para girar
+/// a câmera e use dois dedos para aproximar.
 class Board3D extends StatefulWidget {
   final int n;
-  final Set<Pos> fixed;
-  final Set<Pos> placed;
-  final Pos? highlight;
-  final bool showAttacks;
+  final List<BoardPiece> pieces;
+  final List<CellMark> marks;
+  final Set<Pos> blocked;
 
-  /// Gira a câmera e faz as rainhas pularem (vitória).
+  /// Textos sobre as casas (ex.: a ordem das casas no Passeio do Cavalo).
+  final Map<Pos, String> labels;
+
+  /// Gira a câmera e faz as peças pularem (vitória).
   final bool celebrate;
   final ValueChanged<Pos>? onTap;
+
+  /// Tema a usar; se `null`, usa o escolhido pelo jogador.
+  final BoardTheme? theme;
+
+  /// Inclinação inicial da câmera (menor = mais de lado).
+  final double pitch;
 
   const Board3D({
     super.key,
     required this.n,
-    required this.fixed,
-    required this.placed,
-    this.highlight,
-    this.showAttacks = false,
+    required this.pieces,
+    this.marks = const [],
+    this.blocked = const {},
+    this.labels = const {},
     this.celebrate = false,
     this.onTap,
+    this.theme,
+    this.pitch = defaultPitch,
   });
 
   @override
@@ -102,20 +163,30 @@ class Board3DState extends State<Board3D> with SingleTickerProviderStateMixin {
   late final Ticker _ticker = createTicker(_tick);
   Duration _now = Duration.zero;
   Duration _lastTick = Duration.zero;
-  final Map<Pos, Duration> _droppedAt = {};
+  final Map<Object, _Anim> _anims = {};
 
-  double _yaw = 0, _pitch = defaultPitch, _zoom = 1;
+  double _yaw = 0, _zoom = 1;
+  late double _pitch = widget.pitch;
   double _startYaw = 0, _startPitch = 0, _startZoom = 1;
   Offset _startFocal = Offset.zero;
   Size _size = Size.zero;
 
+  BoardTheme get _theme => widget.theme ?? Progress.instance.theme;
+
   @override
   void didUpdateWidget(Board3D oldWidget) {
     super.didUpdateWidget(oldWidget);
-    for (final p in widget.placed.difference(oldWidget.placed)) {
-      _droppedAt[p] = _now;
+    final old = {for (final p in oldWidget.pieces) p.id: p.pos};
+    for (final p in widget.pieces) {
+      final before = old[p.id];
+      if (!old.containsKey(p.id)) {
+        _anims[p.id] = _Anim(null, _now);
+      } else if (before != p.pos) {
+        _anims[p.id] = _Anim(before, _now);
+      }
     }
-    _droppedAt.removeWhere((p, _) => !widget.placed.contains(p));
+    final ids = {for (final p in widget.pieces) p.id};
+    _anims.removeWhere((id, _) => !ids.contains(id));
     _ensureTicking();
   }
 
@@ -127,7 +198,7 @@ class Board3DState extends State<Board3D> with SingleTickerProviderStateMixin {
 
   bool get _animating =>
       widget.celebrate ||
-      _droppedAt.values.any((t) => _now - t < _dropDuration);
+      _anims.values.any((a) => _now - a.start < _dropDuration);
 
   void _ensureTicking() {
     if (_animating && !_ticker.isActive) {
@@ -152,43 +223,62 @@ class Board3DState extends State<Board3D> with SingleTickerProviderStateMixin {
   /// Volta a câmera para a posição inicial.
   void resetCamera() => setState(() {
     _yaw = 0;
-    _pitch = defaultPitch;
+    _pitch = widget.pitch;
     _zoom = 1;
   });
 
   Camera get _camera =>
       boardCamera(widget.n, _size, yaw: _yaw, pitch: _pitch, zoom: _zoom);
 
-  double _queenLift(Pos p) {
-    var lift = 0.0;
-    final t = _droppedAt[p];
-    if (t != null) {
-      final k = (_now - t).inMicroseconds / _dropDuration.inMicroseconds;
-      if (k < 1) lift = (1 - Curves.bounceOut.transform(k)) * 2.2;
+  /// Posição atual da peça, considerando queda, pulo e comemoração.
+  Vec3 _piecePosition(BoardPiece p) {
+    final n = widget.n;
+    var pos = cellCenter(n, p.pos);
+    final anim = _anims[p.id];
+    if (anim != null) {
+      final from = anim.from;
+      final elapsed = (_now - anim.start).inMicroseconds;
+      if (from == null) {
+        final k = elapsed / _dropDuration.inMicroseconds;
+        if (k < 1) {
+          pos += Vec3(0, (1 - Curves.bounceOut.transform(k)) * 2.2, 0);
+        }
+      } else {
+        final k = elapsed / _hopDuration.inMicroseconds;
+        if (k < 1) {
+          final e = Curves.easeInOut.transform(k);
+          final a = cellCenter(n, from);
+          pos = a + (pos - a) * e + Vec3(0, sin(pi * e) * 1.1, 0);
+        }
+      }
     }
     if (widget.celebrate) {
-      final phase = p.row * 0.7 + p.col * 0.3;
-      lift += 0.35 * sin(_now.inMicroseconds / 1e6 * 5 + phase).abs();
+      final phase = p.pos.row * 0.7 + p.pos.col * 0.3;
+      pos += Vec3(
+        0,
+        0.35 * sin(_now.inMicroseconds / 1e6 * 5 + phase).abs(),
+        0,
+      );
     }
-    return lift;
+    return pos;
   }
 
   Pos? _pick(Offset tap) {
     final cam = _camera;
     final n = widget.n;
 
-    // Primeiro as rainhas (o toque pode cair no corpo dela, acima da casa).
+    // Primeiro as peças (o toque pode cair no corpo dela, acima da casa).
     Pos? best;
     var bestDepth = double.infinity;
-    for (final q in {...widget.fixed, ...widget.placed}) {
-      final base = cellCenter(n, q);
-      final top = base + Vec3(0, queenHeight * _queenScale, 0);
+    for (final p in widget.pieces) {
+      final base = cellCenter(n, p.pos);
+      final top = base + Vec3(0, pieceHeight(p.kind) * pieceScale(p.kind), 0);
       final a = cam.project(base), b = cam.project(top);
       if (a == null || b == null) continue;
       final depth = cam.depth(base);
       final radius = 0.3 * cam.focal / depth;
       if (_distToSegment(tap, a, b) <= radius && depth < bestDepth) {
-        best = q;
+        best = p.pos;
         bestDepth = depth;
       }
     }
@@ -219,7 +309,7 @@ class Board3DState extends State<Board3D> with SingleTickerProviderStateMixin {
           behavior: HitTestBehavior.opaque,
           onTapUp: (d) {
             final p = _pick(d.localPosition);
-            if (p != null && !widget.fixed.contains(p)) widget.onTap?.call(p);
+            if (p != null) widget.onTap?.call(p);
           },
           onScaleStart: (d) {
             _startYaw = _yaw;
@@ -256,91 +346,108 @@ class _BoardPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final w = state.widget;
     final n = w.n;
-    final all = {...w.fixed, ...w.placed};
-    final bad = conflicts(all);
+    final theme = state._theme;
 
-    final flat = <Instance>[Instance(_boardMesh(n), const Vec3(0, 0, 0))];
+    final flat = <Instance>[
+      Instance(_boardMesh(n, theme), const Vec3(0, 0, 0)),
+    ];
     const lift = Vec3(0, 0.004, 0);
-    if (w.showAttacks) {
-      for (final p in attackedCells(n, all)) {
-        flat.add(
-          Instance(
-            disc(0.11),
-            cellCenter(n, p) + lift,
-            color: _attackColor,
-            unlit: true,
-          ),
-        );
-      }
-    }
-    final hl = w.highlight;
-    if (hl != null) {
+    for (final m in w.marks) {
+      final mesh = switch (m.kind) {
+        MarkKind.dot => disc(0.11),
+        MarkKind.frame => frameMesh(0.96, 0.09),
+        MarkKind.fill => frameMesh(0.98, 0.49),
+      };
       flat.add(
         Instance(
-          frameMesh(0.96, 0.09),
-          cellCenter(n, hl) + lift,
-          color: _hintColor,
+          mesh,
+          cellCenter(n, m.pos) + lift,
+          color: m.color,
           unlit: true,
         ),
       );
     }
 
-    final queens = <Instance>[];
-    for (final q in all) {
-      final base = cellCenter(n, q);
-      final up = state._queenLift(q);
-      final shadowScale = 1 / (1 + up * 0.6);
+    final solids = <Instance>[
+      for (final b in w.blocked)
+        Instance(blockMesh, cellCenter(n, b), color: theme.block, shine: 0.15),
+    ];
+    for (final p in w.pieces) {
+      final pos = state._piecePosition(p);
+      final shadowScale = 1 / (1 + pos.y * 0.6);
       flat.add(
         Instance(
           disc(0.4),
-          base + const Vec3(0.09, 0.006, -0.07),
+          Vec3(pos.x, 0, pos.z) + const Vec3(0.09, 0.006, -0.07),
           scale: shadowScale,
           color: _shadowColor,
           unlit: true,
         ),
       );
-      final Color color;
-      if (bad.contains(q)) {
-        color = _conflictQueen;
-      } else if (w.fixed.contains(q)) {
-        color = _fixedQueen;
-      } else {
-        color = _playerQueen;
-      }
-      queens.add(
+      solids.add(
         Instance(
-          queenMesh,
-          base + Vec3(0, up, 0),
-          scale: _queenScale,
-          color: color,
-          shine: 0.45,
+          pieceMesh(p.kind),
+          pos,
+          scale: pieceScale(p.kind),
+          color: pieceColor(theme, p.role),
+          shine: theme.shine,
+          rotY: p.kind == PieceKind.knight ? knightFacing(camera.yaw) : 0,
         ),
       );
     }
 
-    Renderer(camera).draw(canvas, flat: flat, sorted: queens);
+    Renderer(camera).draw(
+      canvas,
+      flat: flat,
+      sorted: solids,
+      afterFlat: (canvas) => _drawLabels(canvas, n),
+    );
+  }
+
+  void _drawLabels(Canvas canvas, int n) {
+    for (final e in state.widget.labels.entries) {
+      final center = cellCenter(n, e.key);
+      final at = camera.project(center);
+      if (at == null) continue;
+      final fontSize = 0.36 * camera.focal / camera.depth(center);
+      final painter = TextPainter(
+        text: TextSpan(
+          text: e.value,
+          style: TextStyle(
+            color: const Color(0xFFFFFFFF),
+            fontSize: fontSize,
+            fontWeight: FontWeight.w800,
+            shadows: const [Shadow(blurRadius: 3, color: Color(0xCC000000))],
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      painter.paint(canvas, at - Offset(painter.width / 2, painter.height / 2));
+    }
   }
 
   @override
   bool shouldRepaint(_BoardPainter old) => true;
 }
 
-/// Rainha 3D girando (logotipo da tela inicial).
-class SpinningQueen extends StatefulWidget {
+/// Peça 3D girando (logotipo e ícones).
+class SpinningPiece extends StatefulWidget {
   final double size;
   final Color color;
+  final PieceKind kind;
 
-  const SpinningQueen({
+  const SpinningPiece({
     super.key,
     this.size = 150,
     this.color = const Color(0xFFFFD54F),
+    this.kind = PieceKind.queen,
   });
 
   @override
-  State<SpinningQueen> createState() => _SpinningQueenState();
+  State<SpinningPiece> createState() => _SpinningPieceState();
 }
 
-class _SpinningQueenState extends State<SpinningQueen>
+class _SpinningPieceState extends State<SpinningPiece>
     with SingleTickerProviderStateMixin {
   late final Ticker _ticker;
   double _t = 0;
@@ -363,7 +470,7 @@ class _SpinningQueenState extends State<SpinningQueen>
     final size = Size.square(widget.size);
     return CustomPaint(
       size: size,
-      painter: _QueenPainter(
+      painter: _PiecePainter(
         Camera(
           yaw: _t * 0.8,
           pitch: 0.3,
@@ -372,16 +479,18 @@ class _SpinningQueenState extends State<SpinningQueen>
           target: const Vec3(0, 0.56, 0),
         ),
         widget.color,
+        widget.kind,
       ),
     );
   }
 }
 
-class _QueenPainter extends CustomPainter {
+class _PiecePainter extends CustomPainter {
   final Camera camera;
   final Color color;
+  final PieceKind kind;
 
-  _QueenPainter(this.camera, this.color);
+  _PiecePainter(this.camera, this.color, this.kind);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -396,11 +505,16 @@ class _QueenPainter extends CustomPainter {
         ),
       ],
       sorted: [
-        Instance(queenMesh, const Vec3(0, 0, 0), color: color, shine: 0.5),
+        Instance(
+          pieceMesh(kind),
+          const Vec3(0, 0, 0),
+          color: color,
+          shine: 0.5,
+        ),
       ],
     );
   }
 
   @override
-  bool shouldRepaint(_QueenPainter old) => true;
+  bool shouldRepaint(_PiecePainter old) => true;
 }

@@ -1,6 +1,16 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../game/challenge.dart';
+import '../game/levels.dart';
+import '../render3d/themes.dart';
+
+/// Dicas com que o jogador começa.
+const initialHints = 3;
+
+/// Dicas ganhas ao vencer uma fase pela primeira vez.
+const hintsPerNewLevel = 1;
+
+/// Dicas ganhas ao assistir a um vídeo.
+const hintsPerVideo = 2;
 
 /// Progresso do jogador, salvo no aparelho.
 class Progress {
@@ -14,7 +24,7 @@ class Progress {
     instance = Progress._(await SharedPreferences.getInstance());
   }
 
-  // --- Modo clássico ---
+  // --- Modo clássico das rainhas ---
 
   /// Soluções diferentes já encontradas no tabuleiro N×N.
   Set<String> foundSolutions(int n) =>
@@ -39,18 +49,45 @@ class Progress {
     return true;
   }
 
-  // --- Desafios ---
+  // --- Fases ---
 
-  int stars(Challenge c) => _prefs.getInt('stars_${c.id}') ?? 0;
+  int stars(LevelRef level) => _prefs.getInt('stars_${level.key}') ?? 0;
 
-  Future<void> saveStars(Challenge c, int stars) async {
-    if (stars > this.stars(c)) await _prefs.setInt('stars_${c.id}', stars);
+  /// Salva as estrelas (se melhorou). Retorna `true` se a fase foi vencida
+  /// pela primeira vez.
+  Future<bool> saveStars(LevelRef level, int stars) async {
+    final old = this.stars(level);
+    if (stars > old) await _prefs.setInt('stars_${level.key}', stars);
+    return old == 0;
   }
 
-  /// O primeiro desafio de cada tamanho está sempre liberado; os seguintes
-  /// liberam quando o anterior é concluído.
-  bool isUnlocked(int n, int number) =>
-      number == 1 || stars(generateChallenge(n, number - 1)) > 0;
+  /// Trilha única: cada fase só abre depois de vencer a anterior, inclusive
+  /// entre tamanhos de tabuleiro.
+  bool isUnlocked(LevelRef level) {
+    final prev = level.previous;
+    return prev == null || stars(prev) > 0;
+  }
+
+  int starsInMode(GameMode mode) => [
+    for (final n in mode.sizes)
+      for (var k = 1; k <= mode.perSize; k++) stars(LevelRef(mode, n, k)),
+  ].fold(0, (a, b) => a + b);
+
+  int get totalStars =>
+      GameMode.values.map(starsInMode).fold(0, (a, b) => a + b);
+
+  // --- Dicas ---
+
+  int get hints => _prefs.getInt('hints') ?? initialHints;
+
+  Future<void> addHints(int amount) => _prefs.setInt('hints', hints + amount);
+
+  /// Gasta uma dica; retorna `false` se não havia saldo.
+  Future<bool> spendHint() async {
+    if (hints <= 0) return false;
+    await _prefs.setInt('hints', hints - 1);
+    return true;
+  }
 
   // --- Preferências ---
 
@@ -59,6 +96,28 @@ class Progress {
 
   set showAttacks(bool value) => _prefs.setBool('show_attacks', value);
 
+  // --- Temas e compras ---
+
+  BoardTheme get theme => themeById(_prefs.getString('theme') ?? '');
+
+  set theme(BoardTheme value) => _prefs.setString('theme', value.id);
+
+  Set<String> get _purchases =>
+      (_prefs.getStringList('purchases') ?? const []).toSet();
+
+  bool owns(String productId) => _purchases.contains(productId);
+
+  Future<void> grant(String productId) =>
+      _prefs.setStringList('purchases', {..._purchases, productId}.toList());
+
+  bool isThemeUnlocked(BoardTheme t) {
+    final product = t.productId;
+    if (product != null) return owns(product);
+    return totalStars >= t.starsRequired;
+  }
+
+  bool get adsRemoved => owns(removeAdsProduct);
+
   // --- Anúncios ---
 
   /// Vitórias desde o último anúncio de tela cheia.
@@ -66,3 +125,6 @@ class Progress {
 
   set winsSinceAd(int value) => _prefs.setInt('wins_since_ad', value);
 }
+
+/// Produto da Play Store que remove os anúncios.
+const removeAdsProduct = 'remover_anuncios';

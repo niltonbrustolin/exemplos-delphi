@@ -14,6 +14,7 @@ import 'progress.dart';
 class AdIds {
   static const banner = 'ca-app-pub-3940256099942544/6300978111';
   static const interstitial = 'ca-app-pub-3940256099942544/1033173712';
+  static const rewarded = 'ca-app-pub-3940256099942544/5224354917';
 }
 
 /// Mostra um anúncio de tela cheia a cada tantas vitórias.
@@ -24,6 +25,13 @@ class Ads {
 
   static bool _ready = false;
   static InterstitialAd? _interstitial;
+  static RewardedAd? _rewarded;
+
+  /// Banner e tela cheia só aparecem se o jogador não comprou a remoção.
+  static bool get _showForced => _ready && !Progress.instance.adsRemoved;
+
+  /// Há um vídeo com recompensa pronto para mostrar?
+  static bool get rewardedReady => _rewarded != null;
 
   static bool get _supported =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
@@ -47,10 +55,45 @@ class Ads {
     await MobileAds.instance.initialize();
     _ready = true;
     _loadInterstitial();
+    _loadRewarded();
+  }
+
+  static void _loadRewarded() {
+    if (!_ready) return;
+    RewardedAd.load(
+      adUnitId: AdIds.rewarded,
+      request: const AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) => _rewarded = ad,
+        onAdFailedToLoad: (_) => _rewarded = null,
+      ),
+    );
+  }
+
+  /// Mostra o vídeo com recompensa. Completa com `true` se o jogador
+  /// assistiu até ganhar a recompensa.
+  static Future<bool> showRewarded() {
+    final ad = _rewarded;
+    if (ad == null) return Future.value(false);
+    _rewarded = null;
+    final result = Completer<bool>();
+    var earned = false;
+    void finish(Ad ad) {
+      ad.dispose();
+      _loadRewarded();
+      if (!result.isCompleted) result.complete(earned);
+    }
+
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdDismissedFullScreenContent: finish,
+      onAdFailedToShowFullScreenContent: (ad, _) => finish(ad),
+    );
+    ad.show(onUserEarnedReward: (_, _) => earned = true);
+    return result.future;
   }
 
   static void _loadInterstitial() {
-    if (!_ready) return;
+    if (!_showForced) return;
     InterstitialAd.load(
       adUnitId: AdIds.interstitial,
       request: const AdRequest(),
@@ -64,6 +107,7 @@ class Ads {
   /// Chamado a cada vitória; mostra o anúncio de tela cheia quando chega a
   /// vez dele.
   static void onWin() {
+    if (!_showForced) return;
     final wins = Progress.instance.winsSinceAd + 1;
     final ad = _interstitial;
     if (wins < winsPerInterstitial || ad == null) {
@@ -101,7 +145,7 @@ class _BannerAdBoxState extends State<BannerAdBox> {
   @override
   void initState() {
     super.initState();
-    if (!Ads._ready) return;
+    if (!Ads._showForced) return;
     _ad = BannerAd(
       adUnitId: AdIds.banner,
       size: AdSize.banner,

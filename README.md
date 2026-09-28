@@ -1,7 +1,7 @@
 # exemplos-delphi
 Exemplos de Delphi - randômicos ou de treinamentos
 
-## Rainhas (app Android em Flutter)
+## 8 Queens (app Android em Flutter)
 
 A pasta [`rainhas/`](rainhas/) contém um jogo para Android baseado no problema
 das oito rainhas, pronto para ser publicado na Google Play. Veja o

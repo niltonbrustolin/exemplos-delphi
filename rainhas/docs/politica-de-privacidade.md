@@ -1,17 +1,23 @@
-# Política de Privacidade — Rainhas
+# Política de Privacidade — 8 Queens
 
 *Última atualização: [DATA]*
 
-Esta política descreve como o aplicativo **Rainhas** ("o app"), desenvolvido
-por [SEU NOME], trata informações dos usuários.
+Esta política descreve como o aplicativo **8 Queens** ("o app"), desenvolvido
+por Nilton Brustolin, trata informações dos usuários.
 
 ## Dados armazenados pelo app
 
 O app guarda **somente no seu aparelho** o seu progresso no jogo (soluções
-encontradas, recordes de tempo e estrelas). Esses dados não são enviados a
+encontradas, recordes de tempo, estrelas, dicas e o tema escolhido). Esses dados não são enviados a
 nós nem a terceiros e são apagados quando você desinstala o app.
 
 Não pedimos cadastro, nome, e-mail ou qualquer dado pessoal.
+
+## Compras no app
+
+As compras (remover anúncios e temas) são processadas pelo **Google Play**.
+Não recebemos nem guardamos dados de pagamento; o app registra no aparelho
+apenas quais itens foram comprados.
 
 ## Anúncios
 

@@ -1,48 +1,59 @@
-# Rainhas — o quebra-cabeça das N rainhas
+# 8 Queens — quebra-cabeças de xadrez em 3D
 
-Jogo para Android, feito em Flutter, baseado no clássico problema das oito
-rainhas: colocar N rainhas num tabuleiro N×N sem que nenhuma ataque outra.
-O tabuleiro e as peças são em **3D**, com luz, sombras e câmera livre.
+Jogo para Android, feito em Flutter, com quebra-cabeças clássicos do xadrez:
+o problema das oito rainhas e desafios com o cavalo. Tabuleiro e peças em
+**3D**, com luz, sombras e câmera livre.
 
 <p>
   <img src="docs/capturas/1-inicio.png" width="200">
-  <img src="docs/capturas/2-desafios.png" width="200">
+  <img src="docs/capturas/2-passeio.png" width="200">
   <img src="docs/capturas/3-jogo.png" width="200">
-  <img src="docs/capturas/4-vitoria.png" width="200">
+  <img src="docs/capturas/4-loja.png" width="200">
 </p>
 
 ## O que o app tem
 
-- **Tabuleiro 3D**: rainhas torneadas com iluminação suave e brilho,
-  sombras, câmera que gira com o dedo e zoom com dois dedos, rainhas que
-  caem quicando no tabuleiro e comemoração com a câmera girando na vitória.
-
-- **Modo Clássico** — tabuleiros de 4×4 a 12×12. O jogador tenta achar todas
-  as soluções de cada tamanho (no 8×8 são 92) e bater o recorde de tempo.
-- **Desafios** — 72 fases (tabuleiros de 5×5 a 10×10, 12 fases cada) com
-  algumas rainhas fixas e **solução única**, estrelas por fase e liberação
-  progressiva das fases.
-- Dicas inteligentes (sugerem onde colocar ou qual rainha tirar), desfazer,
-  cronômetro, destaque de conflitos e, opcionalmente, das casas atacadas.
-- Progresso salvo no aparelho.
-- **Anúncios AdMob**: banner no rodapé e anúncio de tela cheia a cada 3
-  vitórias, com o formulário de consentimento do Google (LGPD/GDPR).
+- **Rainhas — Modo Clássico**: tabuleiros de 4×4 a 12×12, sem fases. O
+  jogador tenta achar todas as soluções de cada tamanho (no 8×8 são 92).
+- **Rainhas — Desafios**: 72 fases com algumas rainhas fixas e solução única.
+- **Passeio do Cavalo**: 32 fases (5×5 a 8×8). O cavalo precisa passar por
+  todas as casas livres uma única vez; nas fases mais adiantadas há casas
+  bloqueadas. Toda fase tem solução garantida.
+- **Cavalos sem Ataque**: 32 fases com casas bloqueadas; colocar o máximo de
+  cavalos sem que se ataquem (o máximo é calculado por emparelhamento em
+  grafo bipartido, e as fases são escolhidas para que o truque de "usar só
+  uma cor" não funcione).
+- **Trilha única de fases**: cada fase libera a próxima, e o tabuleiro
+  seguinte só abre depois de vencer todas as fases do anterior.
+- **Dicas como recurso**: começa com 3; cada fase nova vencida dá +1; sem
+  saldo, o jogador pode assistir a um vídeo para ganhar +2.
+- **Tabuleiro 3D**: rainha e cavalo modelados em 3D, câmera que gira com o
+  dedo, zoom com dois dedos, peças que caem e pulam, comemoração na vitória.
+- **Monetização**: banner, anúncio de tela cheia a cada 3 vitórias, vídeo
+  com recompensa (dicas), compra "Remover anúncios" e temas pagos (Mármore e
+  Neon). O tema Torneio é liberado de graça com 60 estrelas.
+- Tela **Sobre** com as informações do desenvolvedor.
 
 ## Estrutura
 
 ```
 lib/
-  main.dart                  inicialização e tema
-  game/solver.dart           solucionador (backtracking com máscara de bits)
-  game/board.dart            regras, conflitos e dicas
-  game/challenge.dart        gerador de desafios com solução única
-  services/progress.dart     progresso salvo (shared_preferences)
-  services/ads.dart          AdMob: IDs, consentimento, banner, tela cheia
-  screens/                   telas (menu, seleção, jogo)
-  render3d/                  motor 3D próprio (câmera, malhas, iluminação)
-  widgets/board_3d.dart      tabuleiro 3D interativo e rainha girando
-test/                        testes da lógica e da interface
-docs/                        política de privacidade e textos da loja
+  main.dart                   inicialização e tema
+  config/app_info.dart        nome do app e dados do desenvolvedor
+  game/solver.dart            solucionador das rainhas (máscara de bits)
+  game/board.dart             regras das rainhas, conflitos e dicas
+  game/challenge.dart         desafios das rainhas com solução única
+  game/knights.dart           passeio do cavalo e cavalos sem ataque
+  game/levels.dart            modos, fases e trilha
+  services/progress.dart      progresso, dicas, temas e compras (no aparelho)
+  services/ads.dart           AdMob: banner, tela cheia e vídeo com recompensa
+  services/store.dart         compras pela Google Play
+  render3d/                   motor 3D próprio (câmera, malhas, luz, temas)
+  widgets/board_3d.dart       tabuleiro 3D interativo
+  widgets/game_ui.dart        partes comuns das telas de jogo
+  screens/                    telas
+test/                         testes da lógica e da interface
+docs/                         política de privacidade e textos da loja
 ```
 
 ## Rodando no seu computador
@@ -68,14 +79,15 @@ docs/                        política de privacidade e textos da loja
 
 ### 2. Trocar os IDs de anúncio de teste pelos seus
 
-No AdMob, crie o app (Android) e dois blocos de anúncio: um **Banner** e um
-**Intersticial**. Depois troque:
+No AdMob, crie o app (Android) e três blocos de anúncio: **Banner**,
+**Intersticial** e **Premiado** (vídeo com recompensa). Depois troque:
 
 | Onde | O quê |
 |------|-------|
 | `android/app/src/main/AndroidManifest.xml` | `APPLICATION_ID` (formato `ca-app-pub-XXXX~YYYY`) |
 | `lib/services/ads.dart` → `AdIds.banner` | ID do bloco Banner (`ca-app-pub-XXXX/ZZZZ`) |
 | `lib/services/ads.dart` → `AdIds.interstitial` | ID do bloco Intersticial |
+| `lib/services/ads.dart` → `AdIds.rewarded` | ID do bloco Premiado |
 
 > Enquanto estiver testando no seu celular, use os IDs de teste ou cadastre
 > o aparelho como dispositivo de teste no AdMob. **Clicar nos próprios
@@ -84,13 +96,34 @@ No AdMob, crie o app (Android) e dois blocos de anúncio: um **Banner** e um
 No AdMob, em *Privacidade e mensagens*, crie a mensagem de consentimento
 GDPR — o app já mostra o formulário automaticamente quando necessário.
 
-### 3. Conferir o Application ID
+### 3. Produtos da loja (compras no app)
+
+Na Play Console, em **Monetizar › Produtos › Produtos no app**, crie estes
+produtos (IDs exatamente iguais; todos são compras únicas):
+
+| ID do produto | O que libera | Preço sugerido |
+|---------------|--------------|----------------|
+| `remover_anuncios` | tira banner e anúncios entre fases | R$ 9,90 |
+| `tema_marmore` | tema Mármore | R$ 4,90 |
+| `tema_neon` | tema Neon | R$ 4,90 |
+
+As compras só funcionam com o app instalado pela Play Store (use a trilha de
+**teste interno** e adicione seu e-mail como testador de licença em
+*Configurações › Teste de licença* para comprar sem ser cobrado). Num APK
+instalado à mão, a loja aparece como indisponível.
+
+### 4. Dados do desenvolvedor
+
+Edite `lib/config/app_info.dart`: e-mail de contato e o endereço da política
+de privacidade (os dois aparecem na tela **Sobre**; vazios, ficam ocultos).
+
+### 5. Conferir o Application ID
 
 O ID atual é `br.nilton.rainhas` (em `android/app/build.gradle.kts`).
 Ele identifica o app na loja para sempre; se quiser outro, troque **antes**
 da primeira publicação.
 
-### 4. Criar a chave de assinatura (uma única vez)
+### 6. Criar a chave de assinatura (uma única vez)
 
 ```
 keytool -genkey -v -keystore ~/rainhas-upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
@@ -109,7 +142,7 @@ storeFile=/caminho/para/rainhas-upload.jks
 Guarde o `.jks` e as senhas num lugar seguro (backup!). Com o *Play App
 Signing* (padrão), o Google guarda a chave final e esta é só a de envio.
 
-### 5. Gerar o pacote
+### 7. Gerar o pacote
 
 A cada nova versão, aumente o número em `pubspec.yaml`
 (`version: 1.0.0+1` → `1.0.1+2`; o número depois do `+` sempre sobe) e rode:
@@ -120,7 +153,7 @@ flutter build appbundle --release
 
 O arquivo sai em `build/app/outputs/bundle/release/app-release.aab`.
 
-### 6. Preencher a Play Console
+### 8. Preencher a Play Console
 
 - Crie o app, envie o `.aab` na trilha de **teste fechado** (depois produção).
 - **Página da loja**: textos prontos em `docs/loja.md`. Você também vai
@@ -137,7 +170,8 @@ O arquivo sai em `build/app/outputs/bundle/release/app-release.aab`.
 
 ## Ideias para próximas versões
 
-- Compra "Remover anúncios" (Google Play Billing).
 - Ícone próprio e tela de abertura (hoje usa o ícone padrão do Flutter).
 - Tradução para inglês e espanhol, para vender no mundo todo.
 - Desafio diário e placar online (Google Play Games).
+- Validação das compras num servidor (hoje a compra é registrada só no
+  aparelho).
