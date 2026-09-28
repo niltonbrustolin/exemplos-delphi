@@ -7,7 +7,7 @@ import '../game/challenge.dart';
 import '../game/solver.dart';
 import '../services/ads.dart';
 import '../services/progress.dart';
-import '../widgets/board_view.dart';
+import '../widgets/board_3d.dart';
 
 String formatTime(int seconds) =>
     '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
@@ -31,6 +31,7 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   final _placed = <Pos>{};
   final _history = <Set<Pos>>[];
+  final _boardKey = GlobalKey<Board3DState>();
   Pos? _highlight;
   int _hints = 0;
   int _seconds = 0;
@@ -137,6 +138,8 @@ class _GameScreenState extends State<GameScreen> {
       lines.add('Dicas usadas: $_hints');
     }
 
+    // Deixa a comemoração em 3D aparecer antes do resultado.
+    await Future<void>.delayed(const Duration(milliseconds: 1800));
     Ads.onWin();
     if (!mounted) return;
 
@@ -228,6 +231,11 @@ class _GameScreenState extends State<GameScreen> {
             icon: Icon(showAttacks ? Icons.visibility : Icons.visibility_off),
           ),
           IconButton(
+            tooltip: 'Centralizar câmera',
+            onPressed: () => _boardKey.currentState?.resetCamera(),
+            icon: const Icon(Icons.threed_rotation),
+          ),
+          IconButton(
             tooltip: 'Recomeçar',
             onPressed: _restart,
             icon: const Icon(Icons.refresh),
@@ -251,17 +259,21 @@ class _GameScreenState extends State<GameScreen> {
                       _Stat(Icons.lightbulb_outline, '$_hints'),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Arraste para girar · use dois dedos para aproximar',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                   Expanded(
-                    child: Center(
-                      child: BoardView(
-                        n: n,
-                        fixed: _fixed,
-                        placed: _placed,
-                        highlight: _highlight,
-                        showAttacks: showAttacks,
-                        onTap: _toggle,
-                      ),
+                    child: Board3D(
+                      key: _boardKey,
+                      n: n,
+                      fixed: _fixed,
+                      placed: _placed,
+                      highlight: _highlight,
+                      showAttacks: showAttacks && !_won,
+                      celebrate: _won,
+                      onTap: _toggle,
                     ),
                   ),
                   const SizedBox(height: 16),

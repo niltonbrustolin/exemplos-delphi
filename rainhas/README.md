@@ -2,15 +2,20 @@
 
 Jogo para Android, feito em Flutter, baseado no clássico problema das oito
 rainhas: colocar N rainhas num tabuleiro N×N sem que nenhuma ataque outra.
+O tabuleiro e as peças são em **3D**, com luz, sombras e câmera livre.
 
 <p>
   <img src="docs/capturas/1-inicio.png" width="200">
   <img src="docs/capturas/2-desafios.png" width="200">
   <img src="docs/capturas/3-jogo.png" width="200">
-  <img src="docs/capturas/4-dica.png" width="200">
+  <img src="docs/capturas/4-vitoria.png" width="200">
 </p>
 
 ## O que o app tem
+
+- **Tabuleiro 3D**: rainhas torneadas com iluminação suave e brilho,
+  sombras, câmera que gira com o dedo e zoom com dois dedos, rainhas que
+  caem quicando no tabuleiro e comemoração com a câmera girando na vitória.
 
 - **Modo Clássico** — tabuleiros de 4×4 a 12×12. O jogador tenta achar todas
   as soluções de cada tamanho (no 8×8 são 92) e bater o recorde de tempo.
@@ -34,7 +39,8 @@ lib/
   services/progress.dart     progresso salvo (shared_preferences)
   services/ads.dart          AdMob: IDs, consentimento, banner, tela cheia
   screens/                   telas (menu, seleção, jogo)
-  widgets/board_view.dart    desenho do tabuleiro e da rainha
+  render3d/                  motor 3D próprio (câmera, malhas, iluminação)
+  widgets/board_3d.dart      tabuleiro 3D interativo e rainha girando
 test/                        testes da lógica e da interface
 docs/                        política de privacidade e textos da loja
 ```

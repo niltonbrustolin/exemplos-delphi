@@ -26,9 +26,13 @@ complete a coleção.
 72 fases com algumas rainhas já posicionadas e apenas UMA solução possível.
 Resolva sem dicas para ganhar 3 estrelas e libere as próximas fases.
 
+♛ TABULEIRO EM 3D
+Gire o tabuleiro com o dedo, aproxime com dois dedos e veja as rainhas
+caírem no lugar. Peças com luz e sombra realistas.
+
 ♛ FEITO PARA APRENDER E SE DIVERTIR
 • Rainhas em conflito ficam vermelhas
-• Casas atacadas ficam destacadas
+• Opção para marcar as casas atacadas
 • Dicas inteligentes quando você travar
 • Botão de desfazer
 • Funciona sem internet

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../widgets/board_view.dart';
+import '../widgets/board_3d.dart';
 import 'challenge_select_screen.dart';
 import 'classic_select_screen.dart';
 
@@ -21,9 +21,7 @@ class HomeScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Center(
-                    child: QueenIcon(size: 120, color: Color(0xFFFFD54F)),
-                  ),
+                  const Center(child: SpinningQueen(size: 170)),
                   const SizedBox(height: 12),
                   Text(
                     'Rainhas',
@@ -113,6 +111,7 @@ void showHowToPlay(BuildContext context) {
           'A rainha ataca em linha reta: na mesma linha, na mesma coluna e '
           'nas diagonais.\n\n'
           '• Toque numa casa para colocar ou tirar uma rainha.\n'
+          '• Arraste para girar o tabuleiro e use dois dedos para aproximar.\n'
           '• Rainhas em vermelho estão se atacando.\n'
           '• O botão de olho marca as casas que estão sob ataque.\n'
           '• Use a Dica quando travar.\n\n'
