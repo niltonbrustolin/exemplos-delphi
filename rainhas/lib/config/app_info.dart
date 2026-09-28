@@ -7,7 +7,7 @@ class AppInfo {
   static const developerName = 'Nilton Brustolin';
 
   /// E-mail de contato. Deixe vazio para não mostrar.
-  static const developerEmail = '';
+  static const developerEmail = 'niltonbrustolin@gmail.com';
 
   /// Endereço público da política de privacidade (exigido pela Play Store
   /// para apps com anúncios). Deixe vazio até publicar a página.
