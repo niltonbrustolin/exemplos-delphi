@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../game/levels.dart';
+import '../l10n/l10n.dart';
 import '../services/ads.dart';
 import '../services/progress.dart';
 import 'help.dart';
@@ -29,7 +30,7 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(mode.title),
+        title: Text(context.l10n.modeTitle(mode)),
         actions: [
           Center(
             child: Padding(
@@ -45,7 +46,7 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
             ),
           ),
           IconButton(
-            tooltip: 'Como jogar',
+            tooltip: context.l10n.howToPlay,
             onPressed: () => showModeHelp(context, mode),
             icon: const Icon(Icons.help_outline),
           ),
@@ -60,12 +61,18 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
               padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
               child: Row(
                 children: [
-                  Text('Tabuleiro $n×$n', style: theme.textTheme.titleLarge),
-                  const Spacer(),
+                  Text(
+                    context.l10n.boardSize(n),
+                    style: theme.textTheme.titleLarge,
+                  ),
+                  const SizedBox(width: 12),
                   if (!progress.isUnlocked(LevelRef(mode, n, 1)))
-                    Text(
-                      'Vença o tabuleiro anterior',
-                      style: theme.textTheme.bodySmall,
+                    Expanded(
+                      child: Text(
+                        context.l10n.beatPreviousBoard,
+                        textAlign: TextAlign.end,
+                        style: theme.textTheme.bodySmall,
+                      ),
                     ),
                 ],
               ),

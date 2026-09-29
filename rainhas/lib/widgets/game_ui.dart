@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../game/daily.dart';
 import '../game/levels.dart';
+import '../l10n/l10n.dart';
 import '../services/ads.dart';
 import '../services/progress.dart';
 import 'board_3d.dart';
@@ -40,29 +42,27 @@ Future<bool> requestHint(BuildContext context) async {
   if (!context.mounted) return false;
 
   final videoReady = Ads.rewardedReady;
+  final l = context.l10n;
   final watch = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
       icon: const Icon(Icons.lightbulb_outline, size: 40),
-      title: const Text('Sem dicas'),
+      title: Text(l.noHintsTitle),
       content: Text(
         videoReady
-            ? 'Assista a um vídeo curto e ganhe $hintsPerVideo dicas.\n\n'
-                  'Você também ganha $hintsPerNewLevel dica a cada fase nova '
-                  'que vencer.'
-            : 'Nenhum vídeo disponível agora. Você ganha $hintsPerNewLevel '
-                  'dica a cada fase nova que vencer.',
+            ? l.noHintsVideo(hintsPerVideo, hintsPerNewLevel)
+            : l.noHintsNoVideo(hintsPerNewLevel),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('Agora não'),
+          child: Text(l.notNow),
         ),
         if (videoReady)
           FilledButton.icon(
             onPressed: () => Navigator.pop(context, true),
             icon: const Icon(Icons.play_circle_outline),
-            label: const Text('Assistir'),
+            label: Text(l.watch),
           ),
       ],
     ),
@@ -89,23 +89,36 @@ Future<WinAction> finishLevel(
   final firstWin = await progress.saveStars(level, stars);
   if (firstWin) await progress.addHints(hintsPerNewLevel);
 
+  // Desafio do dia: sequência de dias e bônus a cada 7 dias seguidos.
+  int? streak;
+  var bonus = false;
+  if (level.daily) {
+    final wasDone = progress.dailyDone(level.variant);
+    streak = await progress.completeDaily(level.variant);
+    bonus = !wasDone && streak % streakBonusEvery == 0;
+    if (bonus) await progress.addHints(streakBonusHints);
+  }
+
   // Deixa a comemoração em 3D aparecer antes do resultado.
   await Future<void>.delayed(const Duration(milliseconds: 1800));
   Ads.onWin();
   if (!context.mounted) return WinAction.menu;
 
+  final l = context.l10n;
   final next = level.next;
   final nextIsNewSize = next != null && next.n != level.n;
   return await showResultDialog(
     context,
-    title: 'Fase concluída!',
+    title: level.daily ? l.dailyCompleteTitle : l.levelComplete,
     stars: stars,
     lines: [
-      'Tempo: ${formatTime(seconds)}',
-      'Dicas usadas: $hintsUsed',
-      if (firstWin) '+$hintsPerNewLevel dica de prêmio!',
-      if (nextIsNewSize) 'Tabuleiro ${next.n}×${next.n} liberado!',
-      if (next == null) 'Você completou todas as fases deste modo!',
+      l.timeLine(formatTime(seconds)),
+      l.hintsUsedLine(hintsUsed),
+      if (streak != null) l.streakLine(streak),
+      if (bonus) l.streakBonus(streakBonusHints),
+      if (firstWin) l.hintReward(hintsPerNewLevel),
+      if (nextIsNewSize) l.boardUnlocked(next.n),
+      if (next == null && !level.daily) l.modeCompleted,
     ],
     canContinue: next != null,
   );
@@ -149,17 +162,17 @@ Future<WinAction> showResultDialog(
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, WinAction.menu),
-          child: const Text('Menu'),
+          child: Text(context.l10n.menu),
         ),
         if (canRepeat)
           FilledButton(
             onPressed: () => Navigator.pop(context, WinAction.again),
-            child: const Text('Jogar de novo'),
+            child: Text(context.l10n.playAgain),
           ),
         if (canContinue)
           FilledButton(
             onPressed: () => Navigator.pop(context, WinAction.next),
-            child: const Text('Próxima'),
+            child: Text(context.l10n.nextLevel),
           ),
       ],
     ),
@@ -200,15 +213,18 @@ class GameScaffold extends StatelessWidget {
         actions: [
           ...extraActions,
           IconButton(
-            tooltip: 'Centralizar câmera',
+            tooltip: context.l10n.centerCamera,
             onPressed: () => boardKey.currentState?.resetCamera(),
             icon: const Icon(Icons.threed_rotation),
           ),
           PopupMenuButton<String>(
             onSelected: (v) => v == 'restart' ? onRestart() : onHelp(),
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'restart', child: Text('Recomeçar')),
-              PopupMenuItem(value: 'help', child: Text('Como jogar')),
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                value: 'restart',
+                child: Text(context.l10n.restart),
+              ),
+              PopupMenuItem(value: 'help', child: Text(context.l10n.howToPlay)),
             ],
           ),
         ],
@@ -228,7 +244,7 @@ class GameScaffold extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Arraste para girar · use dois dedos para aproximar',
+                    context.l10n.dragHint,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   Expanded(child: board),
@@ -238,7 +254,7 @@ class GameScaffold extends StatelessWidget {
                         child: OutlinedButton.icon(
                           onPressed: onUndo,
                           icon: const Icon(Icons.undo),
-                          label: const Text('Desfazer'),
+                          label: Text(context.l10n.undo),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -246,7 +262,9 @@ class GameScaffold extends StatelessWidget {
                         child: FilledButton.icon(
                           onPressed: onHint,
                           icon: const Icon(Icons.lightbulb),
-                          label: Text('Dica (${Progress.instance.hints})'),
+                          label: Text(
+                            context.l10n.hintButton(Progress.instance.hints),
+                          ),
                         ),
                       ),
                     ],

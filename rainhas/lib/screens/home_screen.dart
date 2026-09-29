@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
 import '../config/app_info.dart';
+import '../game/daily.dart';
 import '../game/levels.dart';
+import '../l10n/l10n.dart';
 import '../services/progress.dart';
 import '../widgets/board_3d.dart';
 import 'about_screen.dart';
 import 'classic_select_screen.dart';
 import 'help.dart';
 import 'level_select_screen.dart';
+import 'routes.dart';
 import 'store_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -27,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final progress = Progress.instance;
+    final l = context.l10n;
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -72,33 +76,39 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 Text(
-                  'Quebra-cabeças de xadrez em 3D',
+                  l.appSubtitle,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.titleMedium,
                 ),
-                const SizedBox(height: 24),
-                _Section('Rainhas'),
+                const SizedBox(height: 20),
+                _DailyCard(
+                  onPlay: () async {
+                    await openLevel(context, dailyLevel(today));
+                    if (mounted) setState(() {});
+                  },
+                ),
+                _Section(l.sectionQueens),
                 _MenuButton(
                   icon: Icons.grid_on,
-                  label: 'Modo Clássico',
+                  label: l.classicMode,
                   onPressed: () => _go(const ClassicSelectScreen()),
                 ),
                 _MenuButton(
                   icon: Icons.extension,
-                  label: 'Desafios',
+                  label: l.challenges,
                   onPressed: () =>
                       _go(const LevelSelectScreen(mode: GameMode.queens)),
                 ),
-                _Section('Cavalo'),
+                _Section(l.sectionKnight),
                 _MenuButton(
                   icon: Icons.route,
-                  label: 'Passeio do Cavalo',
+                  label: l.modeTourTitle,
                   onPressed: () =>
                       _go(const LevelSelectScreen(mode: GameMode.tour)),
                 ),
                 _MenuButton(
                   icon: Icons.shield_outlined,
-                  label: 'Cavalos sem Ataque',
+                  label: l.modeKnightsTitle,
                   onPressed: () =>
                       _go(const LevelSelectScreen(mode: GameMode.knights)),
                 ),
@@ -108,17 +118,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     _IconAction(
                       icon: Icons.storefront,
-                      label: 'Loja',
+                      label: l.store,
                       onTap: () => _go(const StoreScreen()),
                     ),
                     _IconAction(
                       icon: Icons.help_outline,
-                      label: 'Como jogar',
+                      label: l.howToPlay,
                       onTap: () => showAllHelp(context),
                     ),
                     _IconAction(
                       icon: Icons.info_outline,
-                      label: 'Sobre',
+                      label: l.about,
                       onTap: () => _go(const AboutScreen()),
                     ),
                   ],
@@ -171,7 +181,11 @@ class _MenuButton extends StatelessWidget {
         onPressed: onPressed,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [Icon(icon), const SizedBox(width: 12), Text(label)],
+          children: [
+            Icon(icon),
+            const SizedBox(width: 12),
+            Flexible(child: Text(label, textAlign: TextAlign.center)),
+          ],
         ),
       ),
     );
@@ -191,17 +205,92 @@ class _IconAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            Icon(icon, size: 30),
-            const SizedBox(height: 4),
-            Text(label),
-          ],
+    return Expanded(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            children: [
+              Icon(icon, size: 30),
+              const SizedBox(height: 4),
+              Text(label, textAlign: TextAlign.center),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Cartão do desafio do dia, com a sequência de dias.
+class _DailyCard extends StatelessWidget {
+  final VoidCallback onPlay;
+
+  const _DailyCard({required this.onPlay});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final progress = Progress.instance;
+    final day = today;
+    final level = dailyLevel(day);
+    final done = progress.dailyDone(day);
+    final streak = progress.streak(day);
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      color: scheme.tertiaryContainer,
+      margin: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onPlay,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(
+                streak > 0 ? Icons.local_fire_department : Icons.event,
+                size: 38,
+                color: streak > 0 ? Colors.deepOrangeAccent : null,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l.dailyTitle,
+                      style: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${l.modeShort(level.mode)} · ${level.n}×${level.n}'),
+                    Text(
+                      progress.bestStreak > 0
+                          ? '${l.streakDays(streak)} · ${l.bestStreak(progress.bestStreak)}'
+                          : l.streakDays(streak),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              done
+                  ? Column(
+                      children: [
+                        const Icon(Icons.check_circle, size: 30),
+                        SizedBox(
+                          width: 90,
+                          child: Text(
+                            l.dailyDone,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ],
+                    )
+                  : FilledButton(onPressed: onPlay, child: Text(l.dailyPlay)),
+            ],
+          ),
         ),
       ),
     );

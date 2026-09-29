@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../game/board.dart';
+import '../l10n/l10n.dart';
 import '../render3d/themes.dart';
 import '../services/ads.dart';
 import '../services/progress.dart';
@@ -22,22 +23,22 @@ class _StoreScreenState extends State<StoreScreen> {
   Future<void> _watchVideo() async {
     if (await Ads.showRewarded()) {
       await Progress.instance.addHints(hintsPerVideo);
-      if (mounted) showSnack(context, '+$hintsPerVideo dicas!');
+      if (mounted) showSnack(context, context.l10n.plusHints(hintsPerVideo));
     }
     if (mounted) setState(() {});
   }
 
   Widget _buyButton(String productId) {
     if (Progress.instance.owns(productId)) {
-      return const Chip(
-        avatar: Icon(Icons.check, size: 18),
-        label: Text('Comprado'),
+      return Chip(
+        avatar: const Icon(Icons.check, size: 18),
+        label: Text(context.l10n.purchased),
       );
     }
     final price = store.price(productId);
     return FilledButton(
       onPressed: price == null ? null : () => store.buy(productId),
-      child: Text(price ?? 'Indisponível'),
+      child: Text(price ?? context.l10n.unavailable),
     );
   }
 
@@ -45,7 +46,7 @@ class _StoreScreenState extends State<StoreScreen> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Tema ${theme.name}'),
+        title: Text(context.l10n.themeTitle(context.l10n.themeName(theme))),
         contentPadding: const EdgeInsets.fromLTRB(8, 16, 8, 0),
         content: SizedBox(
           width: 320,
@@ -66,7 +67,7 @@ class _StoreScreenState extends State<StoreScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Fechar'),
+            child: Text(context.l10n.close),
           ),
         ],
       ),
@@ -76,12 +77,12 @@ class _StoreScreenState extends State<StoreScreen> {
   Widget _themeAction(BoardTheme theme) {
     final progress = Progress.instance;
     if (progress.theme.id == theme.id) {
-      return const Chip(label: Text('Em uso'));
+      return Chip(label: Text(context.l10n.inUse));
     }
     if (progress.isThemeUnlocked(theme)) {
       return FilledButton(
         onPressed: () => setState(() => progress.theme = theme),
-        child: const Text('Usar'),
+        child: Text(context.l10n.useTheme),
       );
     }
     if (theme.productId != null) return _buyButton(theme.productId!);
@@ -101,40 +102,37 @@ class _StoreScreenState extends State<StoreScreen> {
   Widget build(BuildContext context) {
     final progress = Progress.instance;
     final textTheme = Theme.of(context).textTheme;
+    final l = context.l10n;
     return ListenableBuilder(
       listenable: store,
       builder: (context, _) => Scaffold(
-        appBar: AppBar(title: const Text('Loja')),
+        appBar: AppBar(title: Text(l.store)),
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             if (!store.available)
               Card(
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                child: const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text(
-                    'As compras ficam disponíveis quando o app é instalado '
-                    'pela Google Play.',
-                  ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(l.storeUnavailable),
                 ),
               ),
             if (store.lastError != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
-                  'Erro na compra: ${store.lastError}',
+                  l.purchaseError(store.lastError!),
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ),
-            Text('Dicas', style: textTheme.titleLarge),
+            Text(l.hintsSection, style: textTheme.titleLarge),
             Card(
               child: ListTile(
                 leading: const Icon(Icons.lightbulb, size: 36),
-                title: Text('Você tem ${progress.hints} dicas'),
+                title: Text(l.youHaveHints(progress.hints)),
                 subtitle: Text(
-                  'Ganhe $hintsPerNewLevel dica a cada fase nova vencida, ou '
-                  '$hintsPerVideo assistindo a um vídeo.',
+                  l.hintsEarnInfo(hintsPerNewLevel, hintsPerVideo),
                 ),
                 trailing: FilledButton.icon(
                   onPressed: Ads.rewardedReady ? _watchVideo : null,
@@ -144,32 +142,29 @@ class _StoreScreenState extends State<StoreScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            Text('Anúncios', style: textTheme.titleLarge),
+            Text(l.adsSection, style: textTheme.titleLarge),
             Card(
               child: ListTile(
                 leading: const Icon(Icons.block, size: 36),
-                title: const Text('Remover anúncios'),
-                subtitle: const Text(
-                  'Tira o banner e os anúncios entre as fases. Os vídeos que '
-                  'dão dicas continuam opcionais.',
-                ),
+                title: Text(l.removeAds),
+                subtitle: Text(l.removeAdsInfo),
                 trailing: _buyButton(removeAdsProduct),
               ),
             ),
             const SizedBox(height: 16),
-            Text('Temas', style: textTheme.titleLarge),
+            Text(l.themesSection, style: textTheme.titleLarge),
             for (final theme in boardThemes)
               Card(
                 child: ListTile(
                   onTap: () => _preview(theme),
                   leading: _Swatch(theme),
-                  title: Text(theme.name),
+                  title: Text(l.themeName(theme)),
                   subtitle: Text(
                     theme.productId != null
-                        ? 'Toque para ver a prévia'
+                        ? l.tapToPreview
                         : theme.starsRequired > 0
-                        ? 'Grátis com ${theme.starsRequired} estrelas'
-                        : 'Grátis',
+                        ? l.freeWithStars(theme.starsRequired)
+                        : l.free,
                   ),
                   trailing: _themeAction(theme),
                 ),
@@ -179,7 +174,7 @@ class _StoreScreenState extends State<StoreScreen> {
               child: TextButton.icon(
                 onPressed: store.available ? store.restore : null,
                 icon: const Icon(Icons.restore),
-                label: const Text('Restaurar compras'),
+                label: Text(l.restorePurchases),
               ),
             ),
           ],

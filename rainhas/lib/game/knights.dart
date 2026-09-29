@@ -98,11 +98,11 @@ final Map<String, TourLevel> _tourCache = {};
 /// Gera a fase [number] do Passeio do Cavalo no tabuleiro [n]. As primeiras
 /// fases não têm casas bloqueadas; depois elas vão aumentando. Toda fase
 /// gerada tem solução garantida.
-TourLevel generateTour(int n, int number) {
-  return _tourCache.putIfAbsent('$n-$number', () {
+TourLevel generateTour(int n, int number, {int variant = 0}) {
+  return _tourCache.putIfAbsent('$n-$number-$variant', () {
     final blockedCount = number <= 2 ? 0 : min(number - 2, 4);
     for (var attempt = 0; ; attempt++) {
-      final rng = Random(n * 5003 + number * 97 + attempt);
+      final rng = Random(n * 5003 + number * 97 + attempt + variant * 100003);
       final cells = _cells(n, const {})..shuffle(rng);
       final blocked = cells.take(blockedCount).toSet();
       final free = cells.skip(blockedCount).toList();
@@ -185,12 +185,12 @@ final Map<String, KnightsLevel> _knightsCache = {};
 
 /// Gera a fase [number] de Cavalos sem ataque no tabuleiro [n]. Prefere
 /// fases em que o truque de usar só uma cor NÃO chega ao máximo.
-KnightsLevel generateKnights(int n, int number) {
-  return _knightsCache.putIfAbsent('$n-$number', () {
+KnightsLevel generateKnights(int n, int number, {int variant = 0}) {
+  return _knightsCache.putIfAbsent('$n-$number-$variant', () {
     final holes = 2 + number + n ~/ 2;
     KnightsLevel? fallback;
     for (var attempt = 0; attempt < 80; attempt++) {
-      final rng = Random(n * 7727 + number * 131 + attempt);
+      final rng = Random(n * 7727 + number * 131 + attempt + variant * 100019);
       final all = _cells(n, const {})..shuffle(rng);
       final blocked = all.take(holes).toSet();
       final cells = _cells(n, blocked);

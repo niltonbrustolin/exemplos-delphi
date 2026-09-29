@@ -13,4 +13,17 @@ class AppInfo {
   /// para apps com anúncios). Deixe vazio até publicar a página.
   static const privacyPolicyUrl =
       'https://niltonbrustolin.github.io/exemplos-delphi/8queens/politica-de-privacidade.html';
+
+  /// Versão da política no idioma do app (a portuguesa é a principal).
+  static String privacyPolicyFor(String languageCode) => switch (languageCode) {
+    'pt' => privacyPolicyUrl,
+    'es' => privacyPolicyUrl.replaceFirst(
+      'politica-de-privacidade.html',
+      'politica-de-privacidad.html',
+    ),
+    _ => privacyPolicyUrl.replaceFirst(
+      'politica-de-privacidade.html',
+      'privacy-policy.html',
+    ),
+  };
 }

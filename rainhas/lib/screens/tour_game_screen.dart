@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../game/board.dart';
 import '../game/knights.dart';
 import '../game/levels.dart';
+import '../l10n/l10n.dart';
 import '../widgets/board_3d.dart';
 import '../widgets/game_ui.dart';
 import 'help.dart';
@@ -28,6 +29,7 @@ class _TourGameScreenState extends State<TourGameScreen> with GameClock {
   late final TourLevel _tour = generateTour(
     widget.level.n,
     widget.level.number,
+    variant: widget.level.variant,
   );
   late final List<Pos> _path = [_tour.start];
   (Pos, Color)? _highlight;
@@ -54,9 +56,7 @@ class _TourGameScreenState extends State<TourGameScreen> with GameClock {
       if (p != _path.last && !_tour.blocked.contains(p)) {
         showSnack(
           context,
-          _path.contains(p)
-              ? 'Essa casa já foi visitada.'
-              : 'O cavalo anda em "L": escolha uma casa verde.',
+          _path.contains(p) ? context.l10n.tourVisited : context.l10n.tourLMove,
         );
       }
       return;
@@ -68,7 +68,7 @@ class _TourGameScreenState extends State<TourGameScreen> with GameClock {
     if (_path.length == _tour.squares) {
       _onWin();
     } else if (_moves.isEmpty) {
-      showSnack(context, 'Sem saída! Desfaça algumas jogadas.');
+      showSnack(context, context.l10n.tourStuck);
     }
   }
 
@@ -117,9 +117,8 @@ class _TourGameScreenState extends State<TourGameScreen> with GameClock {
     showSnack(
       context,
       route != null
-          ? 'Pule para a casa destacada.'
-          : 'Este caminho não fecha. Desfaça $back jogada${back > 1 ? 's' : ''} '
-                '(volte até a casa $keep).',
+          ? context.l10n.tourHintJump
+          : context.l10n.tourHintBack(back, keep),
     );
   }
 
@@ -147,7 +146,9 @@ class _TourGameScreenState extends State<TourGameScreen> with GameClock {
   Widget build(BuildContext context) {
     final highlight = _highlight;
     return GameScaffold(
-      title: 'Fase ${widget.level.number} · $n×$n',
+      title: widget.level.daily
+          ? context.l10n.dailyTitle
+          : context.l10n.levelTitle(widget.level.number, n),
       boardKey: _boardKey,
       onRestart: _restart,
       onHelp: () => showModeHelp(context, GameMode.tour),

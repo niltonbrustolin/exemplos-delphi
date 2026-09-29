@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rainhas/game/board.dart';
+import 'package:rainhas/l10n/l10n.dart';
 import 'package:rainhas/main.dart';
 import 'package:rainhas/services/progress.dart';
 import 'package:rainhas/widgets/board_3d.dart';
@@ -7,11 +9,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   setUp(() async {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({'language': 'pt'});
     await Progress.load();
+    appLanguage.value = 'pt';
   });
 
   testWidgets('resolve o 4×4 no modo clássico', (tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(const EightQueensApp());
     await tester.tap(find.text('Modo Clássico'));
     await tester.pumpAndSettle();

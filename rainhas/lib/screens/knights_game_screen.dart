@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../game/board.dart';
 import '../game/knights.dart';
 import '../game/levels.dart';
+import '../l10n/l10n.dart';
 import '../services/progress.dart';
 import '../widgets/board_3d.dart';
 import '../widgets/game_ui.dart';
@@ -29,6 +30,7 @@ class _KnightsGameScreenState extends State<KnightsGameScreen> with GameClock {
   late final KnightsLevel _level = generateKnights(
     widget.level.n,
     widget.level.number,
+    variant: widget.level.variant,
   );
   Pos? _highlight;
   int _hints = 0;
@@ -84,8 +86,8 @@ class _KnightsGameScreenState extends State<KnightsGameScreen> with GameClock {
       _highlight = hint.pos;
     });
     showSnack(context, switch (hint) {
-      PlaceHint() => 'Tente colocar um cavalo na casa destacada.',
-      RemoveHint() => 'Tire o cavalo destacado.',
+      PlaceHint() => context.l10n.hintPlaceKnight,
+      RemoveHint() => context.l10n.hintRemoveKnight,
     });
   }
 
@@ -114,7 +116,9 @@ class _KnightsGameScreenState extends State<KnightsGameScreen> with GameClock {
     final bad = _conflicts;
     final showAttacks = Progress.instance.showAttacks && !_won;
     return GameScaffold(
-      title: 'Fase ${widget.level.number} · $n×$n',
+      title: widget.level.daily
+          ? context.l10n.dailyTitle
+          : context.l10n.levelTitle(widget.level.number, n),
       boardKey: _boardKey,
       onRestart: _restart,
       onHelp: () => showModeHelp(context, GameMode.knights),
@@ -122,7 +126,9 @@ class _KnightsGameScreenState extends State<KnightsGameScreen> with GameClock {
       onHint: _won ? null : _hint,
       extraActions: [
         IconButton(
-          tooltip: 'Mostrar casas atacadas',
+          tooltip: Progress.instance.showAttacks
+              ? context.l10n.hideAttacks
+              : context.l10n.showAttacks,
           onPressed: () => setState(
             () =>
                 Progress.instance.showAttacks = !Progress.instance.showAttacks,

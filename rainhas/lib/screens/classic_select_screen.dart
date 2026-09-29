@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../game/solver.dart';
+import '../l10n/l10n.dart';
 import '../services/ads.dart';
 import '../services/progress.dart';
 import '../widgets/game_ui.dart';
@@ -28,7 +29,7 @@ class _ClassicSelectScreenState extends State<ClassicSelectScreen> {
   Widget build(BuildContext context) {
     final progress = Progress.instance;
     return Scaffold(
-      appBar: AppBar(title: const Text('Modo Clássico')),
+      appBar: AppBar(title: Text(context.l10n.classicMode)),
       bottomNavigationBar: const BannerAdBox(),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -41,8 +42,8 @@ class _ClassicSelectScreenState extends State<ClassicSelectScreen> {
                   vertical: 6,
                 ),
                 leading: CircleAvatar(child: Text('$n')),
-                title: Text('Tabuleiro $n×$n'),
-                subtitle: Text(_subtitle(progress, n)),
+                title: Text(context.l10n.boardSize(n)),
+                subtitle: Text(_subtitle(context.l10n, progress, n)),
                 trailing: const Icon(Icons.play_arrow_rounded, size: 32),
                 onTap: () => _play(n),
               ),
@@ -52,11 +53,11 @@ class _ClassicSelectScreenState extends State<ClassicSelectScreen> {
     );
   }
 
-  String _subtitle(Progress progress, int n) {
+  String _subtitle(AppLocalizations l, Progress progress, int n) {
     final found = progress.foundSolutions(n).length;
     final total = allSolutions(n).length;
     final best = progress.bestTime(n);
-    final record = best == null ? '' : ' · recorde ${formatTime(best)}';
-    return 'Soluções: $found de $total$record';
+    final record = best == null ? '' : l.bestTimeSuffix(formatTime(best));
+    return '${l.solutionsProgress(found, total)}$record';
   }
 }

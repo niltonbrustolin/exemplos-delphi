@@ -32,14 +32,16 @@ final Map<String, Challenge> _cache = {};
 /// mesmos desafios. Parte de uma solução e vai removendo rainhas enquanto a
 /// solução continuar única; os primeiros desafios recebem rainhas extras
 /// para ficarem mais fáceis.
-Challenge generateChallenge(int n, int number) {
-  return _cache.putIfAbsent('$n-$number', () {
+///
+/// [variant] gera outra sequência de desafios (usado no desafio do dia).
+Challenge generateChallenge(int n, int number, {int variant = 0}) {
+  return _cache.putIfAbsent('$n-$number-$variant', () {
     final solutions = allSolutions(n);
-    final rng = Random(n * 7919);
+    final rng = Random(n * 7919 + variant * 104729);
     final order = List.generate(solutions.length, (i) => i)..shuffle(rng);
     final solution = solutions[order[(number - 1) % order.length]];
 
-    final levelRng = Random(n * 1000 + number);
+    final levelRng = Random(n * 1000 + number + variant * 7);
     final rows = List.generate(n, (i) => i)..shuffle(levelRng);
     final fixed = {for (final r in rows) r: solution[r]};
     final removed = <int>[];

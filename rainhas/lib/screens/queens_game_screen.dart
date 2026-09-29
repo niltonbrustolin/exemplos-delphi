@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../game/board.dart';
 import '../game/challenge.dart';
 import '../game/levels.dart';
+import '../l10n/l10n.dart';
 import '../game/solver.dart';
 import '../services/ads.dart';
 import '../services/progress.dart';
@@ -41,7 +42,11 @@ class _QueensGameScreenState extends State<QueensGameScreen> with GameClock {
   int get n => widget.n;
   late final Challenge? _challenge = widget.level == null
       ? null
-      : generateChallenge(n, widget.level!.number);
+      : generateChallenge(
+          n,
+          widget.level!.number,
+          variant: widget.level!.variant,
+        );
   Set<Pos> get _fixed => _challenge?.fixed ?? const {};
 
   @override
@@ -88,8 +93,8 @@ class _QueensGameScreenState extends State<QueensGameScreen> with GameClock {
       _highlight = hint.pos;
     });
     showSnack(context, switch (hint) {
-      PlaceHint() => 'Tente colocar uma rainha na casa destacada.',
-      RemoveHint() => 'A rainha destacada não faz parte da solução.',
+      PlaceHint() => context.l10n.hintPlaceQueen,
+      RemoveHint() => context.l10n.hintRemoveQueen,
     });
   }
 
@@ -130,15 +135,16 @@ class _QueensGameScreenState extends State<QueensGameScreen> with GameClock {
     await Future<void>.delayed(const Duration(milliseconds: 1800));
     Ads.onWin();
     if (!mounted) return WinAction.menu;
+    final l = context.l10n;
     return showResultDialog(
       context,
-      title: isNew ? 'Nova solução!' : 'Resolvido!',
+      title: isNew ? l.newSolution : l.solved,
       lines: [
-        'Tempo: ${formatTime(seconds)}',
-        if (!isNew) 'Você já tinha encontrado esta solução.',
-        'Soluções encontradas: $found de $total',
-        if (isNew) '+$hintsPerNewLevel dica de prêmio!',
-        if (record) 'Novo recorde de tempo!',
+        l.timeLine(formatTime(seconds)),
+        if (!isNew) l.alreadyFound,
+        l.solutionsFoundLine(found, total),
+        if (isNew) l.hintReward(hintsPerNewLevel),
+        if (record) l.newRecord,
       ],
       canRepeat: true,
     );
@@ -152,7 +158,11 @@ class _QueensGameScreenState extends State<QueensGameScreen> with GameClock {
     final showAttacks = Progress.instance.showAttacks && !_won;
 
     return GameScaffold(
-      title: level == null ? 'Clássico $n×$n' : 'Fase ${level.number} · $n×$n',
+      title: level == null
+          ? context.l10n.classicTitle(n)
+          : level.daily
+          ? context.l10n.dailyTitle
+          : context.l10n.levelTitle(level.number, n),
       boardKey: _boardKey,
       onRestart: _restart,
       onHelp: () => level == null
@@ -163,8 +173,8 @@ class _QueensGameScreenState extends State<QueensGameScreen> with GameClock {
       extraActions: [
         IconButton(
           tooltip: showAttacks
-              ? 'Esconder casas atacadas'
-              : 'Mostrar casas atacadas',
+              ? context.l10n.hideAttacks
+              : context.l10n.showAttacks,
           onPressed: () => setState(
             () =>
                 Progress.instance.showAttacks = !Progress.instance.showAttacks,

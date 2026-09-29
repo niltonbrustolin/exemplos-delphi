@@ -76,6 +76,29 @@ class Progress {
   int get totalStars =>
       GameMode.values.map(starsInMode).fold(0, (a, b) => a + b);
 
+  // --- Desafio do dia ---
+
+  int get _lastDaily => _prefs.getInt('daily_last') ?? -1000;
+
+  bool dailyDone(int day) => _lastDaily == day;
+
+  /// Sequência atual (zera se o jogador pulou um dia).
+  int streak(int day) =>
+      _lastDaily >= day - 1 ? _prefs.getInt('daily_streak') ?? 0 : 0;
+
+  int get bestStreak => _prefs.getInt('daily_best') ?? 0;
+
+  /// Registra o desafio do dia [day] como feito e devolve a sequência.
+  /// Repetir o mesmo dia não muda nada.
+  Future<int> completeDaily(int day) async {
+    if (dailyDone(day)) return streak(day);
+    final value = _lastDaily == day - 1 ? streak(day) + 1 : 1;
+    await _prefs.setInt('daily_last', day);
+    await _prefs.setInt('daily_streak', value);
+    if (value > bestStreak) await _prefs.setInt('daily_best', value);
+    return value;
+  }
+
   // --- Dicas ---
 
   int get hints => _prefs.getInt('hints') ?? initialHints;
@@ -95,6 +118,11 @@ class Progress {
   bool get showAttacks => _prefs.getBool('show_attacks') ?? false;
 
   set showAttacks(bool value) => _prefs.setBool('show_attacks', value);
+
+  /// Idioma escolhido (`''` = o do aparelho).
+  String get language => _prefs.getString('language') ?? '';
+
+  set language(String code) => _prefs.setString('language', code);
 
   // --- Temas e compras ---
 

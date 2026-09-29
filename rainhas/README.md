@@ -32,6 +32,12 @@ o problema das oito rainhas e desafios com o cavalo. Tabuleiro e peças em
 - **Monetização**: banner, anúncio de tela cheia a cada 3 vitórias, vídeo
   com recompensa (dicas), compra "Remover anúncios" e temas pagos (Mármore e
   Neon). O tema Torneio é liberado de graça com 60 estrelas.
+- **Desafio do dia**: um quebra-cabeça novo por dia, igual para todos,
+  alternando rainhas, passeio e cavalos, com **sequência de dias** (🔥) e
+  bônus de 3 dicas a cada 7 dias seguidos.
+- **Três idiomas**: português, inglês e espanhol. O app segue o idioma do
+  celular (idioma sem tradução cai no inglês) e há um seletor na tela Sobre.
+  Os textos ficam em `lib/l10n/app_*.arb`.
 - Tela **Sobre** com as informações do desenvolvedor.
 
 ## Estrutura
@@ -45,6 +51,8 @@ lib/
   game/challenge.dart         desafios das rainhas com solução única
   game/knights.dart           passeio do cavalo e cavalos sem ataque
   game/levels.dart            modos, fases e trilha
+  game/daily.dart             desafio do dia
+  l10n/                       traduções (pt, en, es)
   services/progress.dart      progresso, dicas, temas e compras (no aparelho)
   services/ads.dart           AdMob: banner, tela cheia e vídeo com recompensa
   services/store.dart         compras pela Google Play
@@ -161,8 +169,10 @@ O arquivo sai em `build/app/outputs/bundle/release/app-release.aab`.
   de tela do celular.
 - **Política de privacidade**: já publicada pelo GitHub Pages em
   https://niltonbrustolin.github.io/exemplos-delphi/8queens/politica-de-privacidade.html
-  (o arquivo fica em `docs/8queens/` na raiz do repositório). Informe esse
-  link na Play Console.
+  (o arquivo fica em `docs/8queens/` na raiz do repositório; há versões em
+  inglês e espanhol na mesma pasta). Informe esse link na Play Console.
+- **Traduções da página da loja**: em *Presença na loja › Traduções*,
+  adicione inglês e espanhol com os textos de `docs/loja.md`.
 - **Conteúdo do app**: marque que **contém anúncios**; público-alvo 13+
   (evita as regras mais rígidas de apps para crianças); classificação
   indicativa (questionário IARC); *Segurança dos dados*: o SDK do AdMob
