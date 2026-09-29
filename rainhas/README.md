@@ -159,8 +159,10 @@ O arquivo sai em `build/app/outputs/bundle/release/app-release.aab`.
 - **Página da loja**: textos prontos em `docs/loja.md`. Você também vai
   precisar de ícone 512×512, imagem de destaque 1024×500 e 2 a 8 capturas
   de tela do celular.
-- **Política de privacidade**: publique o `docs/politica-de-privacidade.md`
-  numa URL pública (ex.: GitHub Pages ou Google Sites) e informe o link.
+- **Política de privacidade**: já publicada pelo GitHub Pages em
+  https://niltonbrustolin.github.io/exemplos-delphi/8queens/politica-de-privacidade.html
+  (o arquivo fica em `docs/8queens/` na raiz do repositório). Informe esse
+  link na Play Console.
 - **Conteúdo do app**: marque que **contém anúncios**; público-alvo 13+
   (evita as regras mais rígidas de apps para crianças); classificação
   indicativa (questionário IARC); *Segurança dos dados*: o SDK do AdMob

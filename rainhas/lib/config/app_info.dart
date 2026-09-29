@@ -11,5 +11,6 @@ class AppInfo {
 
   /// Endereço público da política de privacidade (exigido pela Play Store
   /// para apps com anúncios). Deixe vazio até publicar a página.
-  static const privacyPolicyUrl = '';
+  static const privacyPolicyUrl =
+      'https://niltonbrustolin.github.io/exemplos-delphi/8queens/politica-de-privacidade.html';
 }

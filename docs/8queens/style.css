@@ -1,0 +1,41 @@
+:root {
+  --bg: #fbf8f4;
+  --text: #2b2320;
+  --muted: #6d625c;
+  --accent: #8d5a3b;
+  --card: #ffffff;
+  --border: #e7ddd3;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #181210;
+    --text: #efe6df;
+    --muted: #b3a69d;
+    --accent: #f0b48c;
+    --card: #231b18;
+    --border: #3a2e29;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 720px; margin: 0 auto; padding: 32px 16px 64px; }
+header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+header .logo { font-size: 44px; line-height: 1; color: var(--accent); }
+h1 { font-size: 1.9rem; line-height: 1.2; margin: 0; }
+h2 { font-size: 1.2rem; margin: 2rem 0 0.4rem; color: var(--accent); }
+p, li { margin: 0.4rem 0; }
+.muted { color: var(--muted); font-size: 0.95rem; }
+a { color: var(--accent); }
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 16px 0;
+}
+footer { margin-top: 48px; color: var(--muted); font-size: 0.9rem; }

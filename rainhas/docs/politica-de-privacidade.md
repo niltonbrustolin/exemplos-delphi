@@ -1,6 +1,6 @@
 # Política de Privacidade — 8 Queens
 
-*Última atualização: [DATA]*
+*Última atualização: 29 de setembro de 2026*
 
 Esta política descreve como o aplicativo **8 Queens** ("o app"), desenvolvido
 por Nilton Brustolin, trata informações dos usuários.
