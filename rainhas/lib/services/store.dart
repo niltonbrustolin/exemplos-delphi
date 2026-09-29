@@ -49,6 +49,8 @@ class Store extends ChangeNotifier {
         for (final p in response.productDetails) {
           products[p.id] = p;
         }
+        // Recupera sozinho as compras (ex.: depois de reinstalar o app).
+        await iap.restorePurchases();
       }
     } catch (e) {
       available = false;
