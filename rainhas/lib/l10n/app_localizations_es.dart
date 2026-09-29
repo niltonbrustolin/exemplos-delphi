@@ -437,4 +437,52 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get bestValue => 'Mejor oferta';
+
+  @override
+  String get demoTapToPlace => 'Toca una casilla para poner una reina';
+
+  @override
+  String get demoConflict => 'Las piezas rojas se están atacando';
+
+  @override
+  String get demoTapToRemove => 'Toca de nuevo para quitarla';
+
+  @override
+  String get demoSolved => 'Nadie es atacado: ¡resuelto!';
+
+  @override
+  String get demoKnightL => 'El caballo salta en \"L\": toca una casilla verde';
+
+  @override
+  String get demoVisitAll => 'Visita todas las casillas una sola vez';
+
+  @override
+  String get demoKnightsGoal => 'Coloca todos los caballos que puedas';
+
+  @override
+  String get demoBlocked => 'Las casillas con bloque no se pueden usar';
+
+  @override
+  String get tutorialQueens =>
+      'Coloca las reinas sin que dos compartan fila, columna o diagonal.';
+
+  @override
+  String get tutorialTour =>
+      'Lleva el caballo por todas las casillas libres del tablero, un salto a la vez.';
+
+  @override
+  String get tutorialKnights =>
+      'Llena el tablero de caballos, pero ninguno puede atacar a otro.';
+
+  @override
+  String get tutorialSkip => 'Saltar';
+
+  @override
+  String get tutorialNext => 'Siguiente';
+
+  @override
+  String get tutorialStart => '¡A jugar!';
+
+  @override
+  String get tutorialAllRules => 'Ver todas las reglas';
 }

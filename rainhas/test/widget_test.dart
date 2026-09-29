@@ -9,7 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   setUp(() async {
-    SharedPreferences.setMockInitialValues({'language': 'pt'});
+    SharedPreferences.setMockInitialValues({
+      'language': 'pt',
+      'tutorial_seen': true,
+    });
     await Progress.load();
     appLanguage.value = 'pt';
   });

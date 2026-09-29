@@ -9,7 +9,10 @@ import 'package:rainhas/services/progress.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> pumpHome(WidgetTester tester, String language) async {
-  SharedPreferences.setMockInitialValues({'language': language});
+  SharedPreferences.setMockInitialValues({
+    'language': language,
+    'tutorial_seen': true,
+  });
   await Progress.load();
   appLanguage.value = language;
   tester.view.physicalSize = const Size(1080, 2400);

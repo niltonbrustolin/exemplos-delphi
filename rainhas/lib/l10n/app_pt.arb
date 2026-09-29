@@ -119,5 +119,20 @@
   "starterPackDesc": "Sem anúncios + temas Mármore e Neon + {hints} dicas",
   "starterOfferTitle": "Oferta especial!",
   "starterOfferBody": "Você está indo muito bem! Leve tudo num pacote por menos do que comprando cada item separado.",
-  "bestValue": "Melhor oferta"
+  "bestValue": "Melhor oferta",
+  "demoTapToPlace": "Toque numa casa para colocar uma rainha",
+  "demoConflict": "Peças vermelhas estão se atacando",
+  "demoTapToRemove": "Toque de novo para tirar",
+  "demoSolved": "Ninguém é atacado: resolvido!",
+  "demoKnightL": "O cavalo pula em \"L\": toque numa casa verde",
+  "demoVisitAll": "Passe por todas as casas uma única vez",
+  "demoKnightsGoal": "Coloque o máximo de cavalos",
+  "demoBlocked": "Casas com bloco não podem ser usadas",
+  "tutorialQueens": "Coloque as rainhas sem que duas fiquem na mesma linha, coluna ou diagonal.",
+  "tutorialTour": "Leve o cavalo por todas as casas livres do tabuleiro, um pulo de cada vez.",
+  "tutorialKnights": "Encha o tabuleiro de cavalos, mas nenhum pode atacar outro.",
+  "tutorialSkip": "Pular",
+  "tutorialNext": "Próximo",
+  "tutorialStart": "Vamos jogar!",
+  "tutorialAllRules": "Ver todas as regras"
 }

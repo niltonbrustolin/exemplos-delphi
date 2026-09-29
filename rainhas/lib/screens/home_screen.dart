@@ -8,10 +8,10 @@ import '../services/progress.dart';
 import '../widgets/board_3d.dart';
 import 'about_screen.dart';
 import 'classic_select_screen.dart';
-import 'help.dart';
 import 'level_select_screen.dart';
 import 'routes.dart';
 import 'store_screen.dart';
+import 'tutorial_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,6 +21,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Na primeira abertura, mostra o tutorial animado.
+    if (!Progress.instance.tutorialSeen) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _go(const TutorialScreen()),
+      );
+    }
+  }
+
   Future<void> _go(Widget screen) async {
     await Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
     if (mounted) setState(() {}); // atualiza dicas e estrelas
@@ -124,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     _IconAction(
                       icon: Icons.help_outline,
                       label: l.howToPlay,
-                      onTap: () => showAllHelp(context),
+                      onTap: () => _go(const TutorialScreen()),
                     ),
                     _IconAction(
                       icon: Icons.info_outline,

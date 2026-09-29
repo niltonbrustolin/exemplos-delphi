@@ -146,5 +146,20 @@
   "starterOfferTitle": "Special offer!",
   "starterOfferBody": "You're doing great! Get everything in one bundle for less than buying each item separately.",
   "bestValue": "Best value",
-  "@starterPackDesc": {"placeholders": {"hints": {"type": "int"}}}
+  "@starterPackDesc": {"placeholders": {"hints": {"type": "int"}}},
+  "demoTapToPlace": "Tap a square to place a queen",
+  "demoConflict": "Red pieces are attacking each other",
+  "demoTapToRemove": "Tap again to remove it",
+  "demoSolved": "No one is attacked: solved!",
+  "demoKnightL": "The knight jumps in an \"L\": tap a green square",
+  "demoVisitAll": "Visit every square exactly once",
+  "demoKnightsGoal": "Place as many knights as you can",
+  "demoBlocked": "Squares with a block can't be used",
+  "tutorialQueens": "Place the queens so that no two share a row, column or diagonal.",
+  "tutorialTour": "Move the knight through every free square of the board, one jump at a time.",
+  "tutorialKnights": "Fill the board with knights, but no knight may attack another.",
+  "tutorialSkip": "Skip",
+  "tutorialNext": "Next",
+  "tutorialStart": "Let's play!",
+  "tutorialAllRules": "See all the rules"
 }

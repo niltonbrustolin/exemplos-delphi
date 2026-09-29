@@ -124,6 +124,11 @@ class Progress {
 
   set language(String code) => _prefs.setString('language', code);
 
+  /// O tutorial animado já foi visto (aparece sozinho na primeira vez).
+  bool get tutorialSeen => _prefs.getBool('tutorial_seen') ?? false;
+
+  set tutorialSeen(bool value) => _prefs.setBool('tutorial_seen', value);
+
   // --- Temas e compras ---
 
   BoardTheme get theme => themeById(_prefs.getString('theme') ?? '');

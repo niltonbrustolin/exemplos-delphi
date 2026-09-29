@@ -765,6 +765,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Best value'**
   String get bestValue;
+
+  /// No description provided for @demoTapToPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a square to place a queen'**
+  String get demoTapToPlace;
+
+  /// No description provided for @demoConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'Red pieces are attacking each other'**
+  String get demoConflict;
+
+  /// No description provided for @demoTapToRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap again to remove it'**
+  String get demoTapToRemove;
+
+  /// No description provided for @demoSolved.
+  ///
+  /// In en, this message translates to:
+  /// **'No one is attacked: solved!'**
+  String get demoSolved;
+
+  /// No description provided for @demoKnightL.
+  ///
+  /// In en, this message translates to:
+  /// **'The knight jumps in an \"L\": tap a green square'**
+  String get demoKnightL;
+
+  /// No description provided for @demoVisitAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit every square exactly once'**
+  String get demoVisitAll;
+
+  /// No description provided for @demoKnightsGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Place as many knights as you can'**
+  String get demoKnightsGoal;
+
+  /// No description provided for @demoBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Squares with a block can\'t be used'**
+  String get demoBlocked;
+
+  /// No description provided for @tutorialQueens.
+  ///
+  /// In en, this message translates to:
+  /// **'Place the queens so that no two share a row, column or diagonal.'**
+  String get tutorialQueens;
+
+  /// No description provided for @tutorialTour.
+  ///
+  /// In en, this message translates to:
+  /// **'Move the knight through every free square of the board, one jump at a time.'**
+  String get tutorialTour;
+
+  /// No description provided for @tutorialKnights.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill the board with knights, but no knight may attack another.'**
+  String get tutorialKnights;
+
+  /// No description provided for @tutorialSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get tutorialSkip;
+
+  /// No description provided for @tutorialNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get tutorialNext;
+
+  /// No description provided for @tutorialStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s play!'**
+  String get tutorialStart;
+
+  /// No description provided for @tutorialAllRules.
+  ///
+  /// In en, this message translates to:
+  /// **'See all the rules'**
+  String get tutorialAllRules;
 }
 
 class _AppLocalizationsDelegate

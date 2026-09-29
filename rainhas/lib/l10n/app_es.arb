@@ -119,5 +119,20 @@
   "starterPackDesc": "Sin anuncios + temas Mármol y Neón + {hints} pistas",
   "starterOfferTitle": "¡Oferta especial!",
   "starterOfferBody": "¡Lo estás haciendo muy bien! Llévate todo en un paquete por menos que comprando cada artículo por separado.",
-  "bestValue": "Mejor oferta"
+  "bestValue": "Mejor oferta",
+  "demoTapToPlace": "Toca una casilla para poner una reina",
+  "demoConflict": "Las piezas rojas se están atacando",
+  "demoTapToRemove": "Toca de nuevo para quitarla",
+  "demoSolved": "Nadie es atacado: ¡resuelto!",
+  "demoKnightL": "El caballo salta en \"L\": toca una casilla verde",
+  "demoVisitAll": "Visita todas las casillas una sola vez",
+  "demoKnightsGoal": "Coloca todos los caballos que puedas",
+  "demoBlocked": "Las casillas con bloque no se pueden usar",
+  "tutorialQueens": "Coloca las reinas sin que dos compartan fila, columna o diagonal.",
+  "tutorialTour": "Lleva el caballo por todas las casillas libres del tablero, un salto a la vez.",
+  "tutorialKnights": "Llena el tablero de caballos, pero ninguno puede atacar a otro.",
+  "tutorialSkip": "Saltar",
+  "tutorialNext": "Siguiente",
+  "tutorialStart": "¡A jugar!",
+  "tutorialAllRules": "Ver todas las reglas"
 }

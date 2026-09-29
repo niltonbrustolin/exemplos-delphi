@@ -11,7 +11,13 @@ o problema das oito rainhas e desafios com o cavalo. Tabuleiro e peças em
   <img src="docs/capturas/4-loja.png" width="200">
 </p>
 
+<p><img src="docs/como-jogar.gif" width="260" alt="Como jogar"></p>
+
 ## O que o app tem
+
+- **Tutorial animado ("Como jogar")**: três páginas, uma por jogo, com um
+  tabuleiro 3D que joga sozinho e legendas. Aparece na primeira vez que o app
+  é aberto; os roteiros ficam em `lib/game/demos.dart`.
 
 - **Rainhas — Modo Clássico**: tabuleiros de 4×4 a 12×12, sem fases. O
   jogador tenta achar todas as soluções de cada tamanho (no 8×8 são 92).

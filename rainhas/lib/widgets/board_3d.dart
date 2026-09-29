@@ -187,6 +187,8 @@ class Board3DState extends State<Board3D> with SingleTickerProviderStateMixin {
     }
     final ids = {for (final p in widget.pieces) p.id};
     _anims.removeWhere((id, _) => !ids.contains(id));
+    // Fim da comemoração (ex.: "Jogar de novo"): câmera volta ao início.
+    if (oldWidget.celebrate && !widget.celebrate) _yaw = 0;
     _ensureTicking();
   }
 

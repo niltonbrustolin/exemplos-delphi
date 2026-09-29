@@ -433,4 +433,52 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get bestValue => 'Melhor oferta';
+
+  @override
+  String get demoTapToPlace => 'Toque numa casa para colocar uma rainha';
+
+  @override
+  String get demoConflict => 'Peças vermelhas estão se atacando';
+
+  @override
+  String get demoTapToRemove => 'Toque de novo para tirar';
+
+  @override
+  String get demoSolved => 'Ninguém é atacado: resolvido!';
+
+  @override
+  String get demoKnightL => 'O cavalo pula em \"L\": toque numa casa verde';
+
+  @override
+  String get demoVisitAll => 'Passe por todas as casas uma única vez';
+
+  @override
+  String get demoKnightsGoal => 'Coloque o máximo de cavalos';
+
+  @override
+  String get demoBlocked => 'Casas com bloco não podem ser usadas';
+
+  @override
+  String get tutorialQueens =>
+      'Coloque as rainhas sem que duas fiquem na mesma linha, coluna ou diagonal.';
+
+  @override
+  String get tutorialTour =>
+      'Leve o cavalo por todas as casas livres do tabuleiro, um pulo de cada vez.';
+
+  @override
+  String get tutorialKnights =>
+      'Encha o tabuleiro de cavalos, mas nenhum pode atacar outro.';
+
+  @override
+  String get tutorialSkip => 'Pular';
+
+  @override
+  String get tutorialNext => 'Próximo';
+
+  @override
+  String get tutorialStart => 'Vamos jogar!';
+
+  @override
+  String get tutorialAllRules => 'Ver todas as regras';
 }

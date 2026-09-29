@@ -434,4 +434,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bestValue => 'Best value';
+
+  @override
+  String get demoTapToPlace => 'Tap a square to place a queen';
+
+  @override
+  String get demoConflict => 'Red pieces are attacking each other';
+
+  @override
+  String get demoTapToRemove => 'Tap again to remove it';
+
+  @override
+  String get demoSolved => 'No one is attacked: solved!';
+
+  @override
+  String get demoKnightL => 'The knight jumps in an \"L\": tap a green square';
+
+  @override
+  String get demoVisitAll => 'Visit every square exactly once';
+
+  @override
+  String get demoKnightsGoal => 'Place as many knights as you can';
+
+  @override
+  String get demoBlocked => 'Squares with a block can\'t be used';
+
+  @override
+  String get tutorialQueens =>
+      'Place the queens so that no two share a row, column or diagonal.';
+
+  @override
+  String get tutorialTour =>
+      'Move the knight through every free square of the board, one jump at a time.';
+
+  @override
+  String get tutorialKnights =>
+      'Fill the board with knights, but no knight may attack another.';
+
+  @override
+  String get tutorialSkip => 'Skip';
+
+  @override
+  String get tutorialNext => 'Next';
+
+  @override
+  String get tutorialStart => 'Let\'s play!';
+
+  @override
+  String get tutorialAllRules => 'See all the rules';
 }
