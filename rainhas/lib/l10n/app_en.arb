@@ -136,5 +136,9 @@
   "helpTour": "Knight's Tour: the knight moves in an \"L\" — two squares in one direction and one to the side. Visit EVERY free square on the board, exactly once each.\n\n• The knight starts on the square marked 1.\n• Tap one of the green squares to jump there.\n• The numbers show the order of your path.\n• Squares with a block cannot be used.\n• If you get stuck, use Undo.",
   "helpKnights": "Peaceful Knights: place the requested number of knights so that no knight attacks another. A knight attacks the squares one \"L\" away.\n\n• Tap a square to place or remove a knight.\n• Knights in red are attacking each other.\n• Squares with a block cannot be used.\n• The requested number is always the maximum possible on that board.",
   "helpProgress": "Levels: beat a level to unlock the next one. Beat every level of a board to unlock the next board.\n\nStars: 3 without hints, 2 with one hint, 1 with more hints.\n\nHints: each new level you beat gives 1 hint. When you run out, you can watch a video to get more.",
-  "helpDaily": "Daily Challenge: a new puzzle every day, the same for all players. Play every day to grow your streak — every 7 days in a row you earn bonus hints."
+  "helpDaily": "Daily Challenge: a new puzzle every day, the same for all players. Play every day to grow your streak — every 7 days in a row you earn bonus hints.",
+  "shareButton": "Share",
+  "shareText": "I solved {what} in {time} on 8 Queens! Can you beat me? {link}",
+  "shareFooter": "Play free on Google Play",
+  "@shareText": {"placeholders": {"what": {"type": "String"}, "time": {"type": "String"}, "link": {"type": "String"}}}
 }

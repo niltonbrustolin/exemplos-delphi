@@ -4,6 +4,7 @@ import '../game/board.dart';
 import '../game/knights.dart';
 import '../game/levels.dart';
 import '../l10n/l10n.dart';
+import '../services/share.dart';
 import '../widgets/board_3d.dart';
 import '../widgets/game_ui.dart';
 import 'help.dart';
@@ -130,6 +131,21 @@ class _TourGameScreenState extends State<TourGameScreen> with GameClock {
       level: widget.level,
       hintsUsed: _hints,
       seconds: seconds,
+      board: ShareBoard(
+        n: n,
+        blocked: _tour.blocked,
+        pitch: knightPitch,
+        pieces: [
+          BoardPiece('cavalo', _path.last, PieceKind.knight, PieceRole.player),
+        ],
+        marks: [
+          for (final p in _path.take(_path.length - 1))
+            CellMark(p, MarkKind.fill, _visitedColor),
+        ],
+        labels: {
+          for (var i = 0; i < _path.length - 1; i++) _path[i]: '${i + 1}',
+        },
+      ),
     );
     if (!mounted) return;
     switch (action) {

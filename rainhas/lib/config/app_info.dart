@@ -6,6 +6,10 @@ class AppInfo {
 
   static const developerName = 'Nilton Brustolin';
 
+  /// Página do app na Play Store (vai no texto compartilhado).
+  static const playStoreUrl =
+      'https://play.google.com/store/apps/details?id=br.nilton.rainhas';
+
   /// E-mail de contato. Deixe vazio para não mostrar.
   static const developerEmail = 'niltonbrustolin@gmail.com';
 

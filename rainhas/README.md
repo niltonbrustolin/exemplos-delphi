@@ -38,7 +38,24 @@ o problema das oito rainhas e desafios com o cavalo. Tabuleiro e peças em
 - **Três idiomas**: português, inglês e espanhol. O app segue o idioma do
   celular (idioma sem tradução cai no inglês) e há um seletor na tela Sobre.
   Os textos ficam em `lib/l10n/app_*.arb`.
+- **Compartilhar o resultado**: ao vencer, o botão Compartilhar gera uma
+  imagem (1080×1350) com o tabuleiro 3D resolvido, estrelas, tempo e
+  sequência, e abre o menu de compartilhamento (WhatsApp, Instagram...).
+- **Ícone e tela de abertura próprios** (rainha dourada em 3D).
 - Tela **Sobre** com as informações do desenvolvedor.
+
+## Imagens para a Play Store
+
+Prontas em `docs/play-store/`:
+
+| Arquivo | Onde usar na Play Console |
+|---------|---------------------------|
+| `icon-512.png` | Ícone do app (512×512) |
+| `feature-graphic-pt.png` (e `-en`, `-es`) | Recurso gráfico (1024×500) |
+| `screenshots/pt/1..5.png` (e `en`, `es`) | Capturas de tela do telefone (1080×1920) |
+
+O ícone do launcher vem de `assets/branding/`; para gerar de novo as
+versões do Android, rode `dart run flutter_launcher_icons`.
 
 ## Estrutura
 
@@ -182,7 +199,6 @@ O arquivo sai em `build/app/outputs/bundle/release/app-release.aab`.
 
 ## Ideias para próximas versões
 
-- Ícone próprio e tela de abertura (hoje usa o ícone padrão do Flutter).
 - Tradução para inglês e espanhol, para vender no mundo todo.
 - Desafio diário e placar online (Google Play Games).
 - Validação das compras num servidor (hoje a compra é registrada só no

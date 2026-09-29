@@ -345,89 +345,105 @@ class _BoardPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final w = state.widget;
-    final n = w.n;
-    final theme = state._theme;
-
-    final flat = <Instance>[
-      Instance(_boardMesh(n, theme), const Vec3(0, 0, 0)),
-    ];
-    const lift = Vec3(0, 0.004, 0);
-    for (final m in w.marks) {
-      final mesh = switch (m.kind) {
-        MarkKind.dot => disc(0.11),
-        MarkKind.frame => frameMesh(0.96, 0.09),
-        MarkKind.fill => frameMesh(0.98, 0.49),
-      };
-      flat.add(
-        Instance(
-          mesh,
-          cellCenter(n, m.pos) + lift,
-          color: m.color,
-          unlit: true,
-        ),
-      );
-    }
-
-    final solids = <Instance>[
-      for (final b in w.blocked)
-        Instance(blockMesh, cellCenter(n, b), color: theme.block, shine: 0.15),
-    ];
-    for (final p in w.pieces) {
-      final pos = state._piecePosition(p);
-      final shadowScale = 1 / (1 + pos.y * 0.6);
-      flat.add(
-        Instance(
-          disc(0.4),
-          Vec3(pos.x, 0, pos.z) + const Vec3(0.09, 0.006, -0.07),
-          scale: shadowScale,
-          color: _shadowColor,
-          unlit: true,
-        ),
-      );
-      solids.add(
-        Instance(
-          pieceMesh(p.kind),
-          pos,
-          scale: pieceScale(p.kind),
-          color: pieceColor(theme, p.role),
-          shine: theme.shine,
-          rotY: p.kind == PieceKind.knight ? knightFacing(camera.yaw) : 0,
-        ),
-      );
-    }
-
-    Renderer(camera).draw(
+    paintBoardScene(
       canvas,
-      flat: flat,
-      sorted: solids,
-      afterFlat: (canvas) => _drawLabels(canvas, n),
+      camera,
+      n: w.n,
+      theme: state._theme,
+      pieces: w.pieces,
+      marks: w.marks,
+      blocked: w.blocked,
+      labels: w.labels,
+      position: state._piecePosition,
     );
-  }
-
-  void _drawLabels(Canvas canvas, int n) {
-    for (final e in state.widget.labels.entries) {
-      final center = cellCenter(n, e.key);
-      final at = camera.project(center);
-      if (at == null) continue;
-      final fontSize = 0.36 * camera.focal / camera.depth(center);
-      final painter = TextPainter(
-        text: TextSpan(
-          text: e.value,
-          style: TextStyle(
-            color: const Color(0xFFFFFFFF),
-            fontSize: fontSize,
-            fontWeight: FontWeight.w800,
-            shadows: const [Shadow(blurRadius: 3, color: Color(0xCC000000))],
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      painter.paint(canvas, at - Offset(painter.width / 2, painter.height / 2));
-    }
   }
 
   @override
   bool shouldRepaint(_BoardPainter old) => true;
+}
+
+/// Desenha o tabuleiro com peças, marcas, blocos e números. Usado pela tela
+/// e também para gerar a imagem de compartilhamento.
+void paintBoardScene(
+  Canvas canvas,
+  Camera camera, {
+  required int n,
+  required BoardTheme theme,
+  List<BoardPiece> pieces = const [],
+  List<CellMark> marks = const [],
+  Set<Pos> blocked = const {},
+  Map<Pos, String> labels = const {},
+  Vec3 Function(BoardPiece piece)? position,
+}) {
+  final flat = <Instance>[Instance(_boardMesh(n, theme), const Vec3(0, 0, 0))];
+  const lift = Vec3(0, 0.004, 0);
+  for (final m in marks) {
+    final mesh = switch (m.kind) {
+      MarkKind.dot => disc(0.11),
+      MarkKind.frame => frameMesh(0.96, 0.09),
+      MarkKind.fill => frameMesh(0.98, 0.49),
+    };
+    flat.add(
+      Instance(mesh, cellCenter(n, m.pos) + lift, color: m.color, unlit: true),
+    );
+  }
+
+  final solids = <Instance>[
+    for (final b in blocked)
+      Instance(blockMesh, cellCenter(n, b), color: theme.block, shine: 0.15),
+  ];
+  for (final p in pieces) {
+    final pos = position?.call(p) ?? cellCenter(n, p.pos);
+    final shadowScale = 1 / (1 + pos.y * 0.6);
+    flat.add(
+      Instance(
+        disc(0.4),
+        Vec3(pos.x, 0, pos.z) + const Vec3(0.09, 0.006, -0.07),
+        scale: shadowScale,
+        color: _shadowColor,
+        unlit: true,
+      ),
+    );
+    solids.add(
+      Instance(
+        pieceMesh(p.kind),
+        pos,
+        scale: pieceScale(p.kind),
+        color: pieceColor(theme, p.role),
+        shine: theme.shine,
+        rotY: p.kind == PieceKind.knight ? knightFacing(camera.yaw) : 0,
+      ),
+    );
+  }
+
+  Renderer(camera).draw(
+    canvas,
+    flat: flat,
+    sorted: solids,
+    afterFlat: (canvas) => _drawLabels(canvas, camera, n, labels),
+  );
+}
+
+void _drawLabels(Canvas canvas, Camera camera, int n, Map<Pos, String> labels) {
+  for (final e in labels.entries) {
+    final center = cellCenter(n, e.key);
+    final at = camera.project(center);
+    if (at == null) continue;
+    final fontSize = 0.36 * camera.focal / camera.depth(center);
+    final painter = TextPainter(
+      text: TextSpan(
+        text: e.value,
+        style: TextStyle(
+          color: const Color(0xFFFFFFFF),
+          fontSize: fontSize,
+          fontWeight: FontWeight.w800,
+          shadows: const [Shadow(blurRadius: 3, color: Color(0xCC000000))],
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    painter.paint(canvas, at - Offset(painter.width / 2, painter.height / 2));
+  }
 }
 
 /// Peça 3D girando (logotipo e ícones).

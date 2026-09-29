@@ -5,6 +5,7 @@ import '../game/knights.dart';
 import '../game/levels.dart';
 import '../l10n/l10n.dart';
 import '../services/progress.dart';
+import '../services/share.dart';
 import '../widgets/board_3d.dart';
 import '../widgets/game_ui.dart';
 import 'help.dart';
@@ -99,6 +100,15 @@ class _KnightsGameScreenState extends State<KnightsGameScreen> with GameClock {
       level: widget.level,
       hintsUsed: _hints,
       seconds: seconds,
+      board: ShareBoard(
+        n: n,
+        blocked: _level.blocked,
+        pitch: knightPitch,
+        pieces: [
+          for (final p in _placed)
+            BoardPiece(p, p, PieceKind.knight, PieceRole.player),
+        ],
+      ),
     );
     if (!mounted) return;
     switch (action) {

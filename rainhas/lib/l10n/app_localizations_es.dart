@@ -408,4 +408,15 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get helpDaily =>
       'Desafío del día: un rompecabezas nuevo cada día, igual para todos los jugadores. Juega todos los días para aumentar tu racha — cada 7 días seguidos ganas pistas de bono.';
+
+  @override
+  String get shareButton => 'Compartir';
+
+  @override
+  String shareText(String what, String time, String link) {
+    return '¡Resolví $what en $time en 8 Queens! ¿Puedes superarme? $link';
+  }
+
+  @override
+  String get shareFooter => 'Juega gratis en Google Play';
 }

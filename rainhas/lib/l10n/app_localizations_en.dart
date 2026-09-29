@@ -405,4 +405,15 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get helpDaily =>
       'Daily Challenge: a new puzzle every day, the same for all players. Play every day to grow your streak — every 7 days in a row you earn bonus hints.';
+
+  @override
+  String get shareButton => 'Share';
+
+  @override
+  String shareText(String what, String time, String link) {
+    return 'I solved $what in $time on 8 Queens! Can you beat me? $link';
+  }
+
+  @override
+  String get shareFooter => 'Play free on Google Play';
 }

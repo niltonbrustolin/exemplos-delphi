@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../game/daily.dart';
 import '../game/levels.dart';
 import '../l10n/l10n.dart';
 import '../services/ads.dart';
 import '../services/progress.dart';
+import '../services/share.dart';
 import 'board_3d.dart';
 
 String formatTime(int seconds) =>
@@ -83,6 +85,7 @@ Future<WinAction> finishLevel(
   required LevelRef level,
   required int hintsUsed,
   required int seconds,
+  required ShareBoard board,
 }) async {
   final progress = Progress.instance;
   final stars = starsFor(hintsUsed);
@@ -121,6 +124,17 @@ Future<WinAction> finishLevel(
       if (next == null && !level.daily) l.modeCompleted,
     ],
     canContinue: next != null,
+    share: ShareCard(
+      board: board,
+      title: level.daily ? l.dailyTitle : l.modeTitle(level.mode),
+      subtitle: level.daily
+          ? '${l.modeShort(level.mode)} · ${level.n}×${level.n} · '
+                '${DateFormat.yMMMd(l.localeName).format(DateTime.now())}'
+          : l.levelTitle(level.number, level.n),
+      stars: stars,
+      seconds: seconds,
+      streak: streak,
+    ),
   );
 }
 
@@ -131,6 +145,7 @@ Future<WinAction> showResultDialog(
   required List<String> lines,
   bool canContinue = false,
   bool canRepeat = false,
+  ShareCard? share,
 }) async {
   final action = await showDialog<WinAction>(
     context: context,
@@ -156,6 +171,11 @@ Future<WinAction> showResultDialog(
             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(line, textAlign: TextAlign.center),
+            ),
+          if (share != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 18),
+              child: _ShareButton(share),
             ),
         ],
       ),
@@ -303,4 +323,41 @@ void showSnack(BuildContext context, String message) {
     ..showSnackBar(
       SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
     );
+}
+
+/// Botão que gera a imagem do resultado e abre o compartilhamento.
+class _ShareButton extends StatefulWidget {
+  final ShareCard card;
+
+  const _ShareButton(this.card);
+
+  @override
+  State<_ShareButton> createState() => _ShareButtonState();
+}
+
+class _ShareButtonState extends State<_ShareButton> {
+  bool _busy = false;
+
+  Future<void> _share() async {
+    setState(() => _busy = true);
+    try {
+      await shareResult(context, widget.card);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: _busy ? null : _share,
+      icon: _busy
+          ? const SizedBox.square(
+              dimension: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Icon(Icons.share),
+      label: Text(context.l10n.shareButton),
+    );
+  }
 }

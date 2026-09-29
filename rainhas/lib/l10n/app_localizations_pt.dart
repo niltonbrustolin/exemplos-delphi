@@ -404,4 +404,15 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get helpDaily =>
       'Desafio do dia: um quebra-cabeça novo por dia, igual para todos os jogadores. Jogue todo dia para aumentar sua sequência — a cada 7 dias seguidos você ganha dicas de bônus.';
+
+  @override
+  String get shareButton => 'Compartilhar';
+
+  @override
+  String shareText(String what, String time, String link) {
+    return 'Resolvi $what em $time no 8 Queens! Consegue fazer melhor? $link';
+  }
+
+  @override
+  String get shareFooter => 'Jogue grátis no Google Play';
 }

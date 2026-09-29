@@ -111,5 +111,8 @@
   "helpTour": "Recorrido del Caballo: el caballo se mueve en \"L\" — dos casillas en una dirección y una hacia el lado. Visita TODAS las casillas libres del tablero, una sola vez cada una.\n\n• El caballo empieza en la casilla marcada con 1.\n• Toca una de las casillas verdes para saltar a ella.\n• Los números muestran el orden de tu camino.\n• Las casillas con bloque no se pueden usar.\n• Si te quedas sin salida, usa Deshacer.",
   "helpKnights": "Caballos en Paz: coloca la cantidad pedida de caballos sin que ninguno ataque a otro. El caballo ataca las casillas a una \"L\" de distancia.\n\n• Toca una casilla para poner o quitar un caballo.\n• Los caballos en rojo se están atacando.\n• Las casillas con bloque no se pueden usar.\n• La cantidad pedida es siempre el máximo posible en ese tablero.",
   "helpProgress": "Niveles: supera un nivel para desbloquear el siguiente. Al superar todos los niveles de un tablero, se desbloquea el siguiente tablero.\n\nEstrellas: 3 sin pistas, 2 con una pista, 1 con más pistas.\n\nPistas: cada nivel nuevo superado da 1 pista. Si te quedas sin pistas, puedes ver un video para ganar más.",
-  "helpDaily": "Desafío del día: un rompecabezas nuevo cada día, igual para todos los jugadores. Juega todos los días para aumentar tu racha — cada 7 días seguidos ganas pistas de bono."
+  "helpDaily": "Desafío del día: un rompecabezas nuevo cada día, igual para todos los jugadores. Juega todos los días para aumentar tu racha — cada 7 días seguidos ganas pistas de bono.",
+  "shareButton": "Compartir",
+  "shareText": "¡Resolví {what} en {time} en 8 Queens! ¿Puedes superarme? {link}",
+  "shareFooter": "Juega gratis en Google Play"
 }

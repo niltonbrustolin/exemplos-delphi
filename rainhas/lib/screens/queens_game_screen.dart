@@ -7,6 +7,7 @@ import '../l10n/l10n.dart';
 import '../game/solver.dart';
 import '../services/ads.dart';
 import '../services/progress.dart';
+import '../services/share.dart';
 import '../widgets/board_3d.dart';
 import '../widgets/game_ui.dart';
 import 'help.dart';
@@ -108,6 +109,7 @@ class _QueensGameScreenState extends State<QueensGameScreen> with GameClock {
             level: level,
             hintsUsed: _hints,
             seconds: seconds,
+            board: _shareBoard,
           )
         : await _finishClassic();
     if (!mounted) return;
@@ -120,6 +122,24 @@ class _QueensGameScreenState extends State<QueensGameScreen> with GameClock {
         Navigator.pop(context);
     }
   }
+
+  List<BoardPiece> get _pieces {
+    final all = {..._fixed, ..._placed};
+    final bad = conflicts(all);
+    return [
+      for (final q in all)
+        BoardPiece(
+          q,
+          q,
+          PieceKind.queen,
+          bad.contains(q)
+              ? PieceRole.conflict
+              : (_fixed.contains(q) ? PieceRole.fixed : PieceRole.player),
+        ),
+    ];
+  }
+
+  ShareBoard get _shareBoard => ShareBoard(n: n, pieces: _pieces);
 
   Future<WinAction> _finishClassic() async {
     final progress = Progress.instance;
@@ -147,6 +167,12 @@ class _QueensGameScreenState extends State<QueensGameScreen> with GameClock {
         if (record) l.newRecord,
       ],
       canRepeat: true,
+      share: ShareCard(
+        board: _shareBoard,
+        title: l.classicMode,
+        subtitle: '$n×$n · ${l.solutionsProgress(found, total)}',
+        seconds: seconds,
+      ),
     );
   }
 

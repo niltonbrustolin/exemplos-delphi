@@ -111,5 +111,8 @@
   "helpTour": "Passeio do Cavalo: o cavalo anda em \"L\" — duas casas numa direção e uma para o lado. Passe por TODAS as casas livres do tabuleiro, uma única vez cada.\n\n• O cavalo começa na casa marcada com 1.\n• Toque numa das casas verdes para pular até ela.\n• Os números mostram a ordem do seu caminho.\n• Casas com bloco não podem ser usadas.\n• Se ficar sem saída, use Desfazer.",
   "helpKnights": "Cavalos sem Ataque: coloque a quantidade pedida de cavalos sem que nenhum ataque outro. O cavalo ataca as casas a um \"L\" de distância.\n\n• Toque numa casa para colocar ou tirar um cavalo.\n• Cavalos em vermelho estão se atacando.\n• Casas com bloco não podem ser usadas.\n• A quantidade pedida é sempre o máximo possível naquele tabuleiro.",
   "helpProgress": "Fases: vença uma fase para liberar a próxima. Vencendo todas as fases de um tabuleiro, o tabuleiro seguinte é liberado.\n\nEstrelas: 3 sem dicas, 2 com uma dica, 1 com mais dicas.\n\nDicas: cada fase nova vencida dá 1 dica. Sem dicas, você pode assistir a um vídeo para ganhar mais.",
-  "helpDaily": "Desafio do dia: um quebra-cabeça novo por dia, igual para todos os jogadores. Jogue todo dia para aumentar sua sequência — a cada 7 dias seguidos você ganha dicas de bônus."
+  "helpDaily": "Desafio do dia: um quebra-cabeça novo por dia, igual para todos os jogadores. Jogue todo dia para aumentar sua sequência — a cada 7 dias seguidos você ganha dicas de bônus.",
+  "shareButton": "Compartilhar",
+  "shareText": "Resolvi {what} em {time} no 8 Queens! Consegue fazer melhor? {link}",
+  "shareFooter": "Jogue grátis no Google Play"
 }

@@ -717,6 +717,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Daily Challenge: a new puzzle every day, the same for all players. Play every day to grow your streak — every 7 days in a row you earn bonus hints.'**
   String get helpDaily;
+
+  /// No description provided for @shareButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareButton;
+
+  /// No description provided for @shareText.
+  ///
+  /// In en, this message translates to:
+  /// **'I solved {what} in {time} on 8 Queens! Can you beat me? {link}'**
+  String shareText(String what, String time, String link);
+
+  /// No description provided for @shareFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Play free on Google Play'**
+  String get shareFooter;
 }
 
 class _AppLocalizationsDelegate
