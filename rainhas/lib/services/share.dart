@@ -1,7 +1,7 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -203,12 +203,20 @@ void _iconTexts(Canvas canvas, List<(IconData, String)> parts, double y) {
 Future<void> shareResult(BuildContext context, ShareCard card) async {
   final l = context.l10n;
   final png = await renderShareImage(card, l, Progress.instance.theme);
-  final dir = await getTemporaryDirectory();
-  final file = File('${dir.path}/8queens_resultado.png');
-  await file.writeAsBytes(png);
+  const name = '8queens_resultado.png';
+  final XFile image;
+  if (kIsWeb) {
+    // No navegador não há pasta temporária: a imagem vai direto da memória.
+    image = XFile.fromData(png, name: name, mimeType: 'image/png');
+  } else {
+    final dir = await getTemporaryDirectory();
+    final file = File('${dir.path}/$name');
+    await file.writeAsBytes(png);
+    image = XFile(file.path, mimeType: 'image/png');
+  }
   await SharePlus.instance.share(
     ShareParams(
-      files: [XFile(file.path, mimeType: 'image/png')],
+      files: [image],
       text: l.shareText(
         card.title,
         formatTime(card.seconds),

@@ -92,6 +92,25 @@ docs/                         política de privacidade e textos da loja
    flutter run           # abre no emulador ou no celular conectado por USB
    ```
 
+## Testar com amigos
+
+- **Android**: mande o arquivo APK (gerado com
+  `flutter build apk --release --split-per-abi`, use o `app-arm64-v8a`) por
+  WhatsApp ou Google Drive. O amigo precisa permitir "instalar apps
+  desconhecidos". Melhor ainda, depois de criar a conta na Play Console: use a
+  trilha de **teste interno** (até 100 testadores, instalam pela Play Store e
+  as compras funcionam em modo de teste).
+- **iPhone (e qualquer celular ou computador)**: versão web em
+  https://niltonbrustolin.github.io/exemplos-delphi/8queens/jogar/ — abre no
+  Safari; em *Compartilhar › Adicionar à Tela de Início* vira um ícone como
+  app. Na web não há anúncios nem compras. Para atualizar a versão web:
+  ```
+  flutter build web --release --base-href /exemplos-delphi/8queens/jogar/ -o ../docs/8queens/jogar
+  rm -rf ../docs/8queens/jogar/canvaskit   # o motor gráfico vem do servidor do Google
+  ```
+- **App nativo de iPhone**: exige um Mac com Xcode e a conta Apple Developer
+  (US$ 99/ano); o teste é feito pelo TestFlight.
+
 ## Passo a passo para publicar na Google Play
 
 ### 1. Contas
