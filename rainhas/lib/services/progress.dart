@@ -133,10 +133,36 @@ class Progress {
   Set<String> get _purchases =>
       (_prefs.getStringList('purchases') ?? const []).toSet();
 
-  bool owns(String productId) => _purchases.contains(productId);
+  /// O pacote inicial também libera tudo o que ele inclui.
+  bool owns(String productId) =>
+      _purchases.contains(productId) ||
+      (_purchases.contains(starterPackProduct) &&
+          starterPackIncludes.contains(productId));
 
-  Future<void> grant(String productId) =>
-      _prefs.setStringList('purchases', {..._purchases, productId}.toList());
+  /// Registra a compra. Retorna `true` se ela é nova (as dicas do pacote
+  /// inicial só entram uma vez, mesmo restaurando a compra depois).
+  Future<bool> grant(String productId) async {
+    if (_purchases.contains(productId)) return false;
+    await _prefs.setStringList(
+      'purchases',
+      {..._purchases, productId}.toList(),
+    );
+    if (productId == starterPackProduct) await addHints(starterPackHints);
+    return true;
+  }
+
+  /// Fases da trilha já vencidas (para oferecer o pacote inicial).
+  int get levelsWon => [
+    for (final mode in GameMode.values)
+      for (final n in mode.sizes)
+        for (var k = 1; k <= mode.perSize; k++)
+          if (stars(LevelRef(mode, n, k)) > 0) 1,
+  ].length;
+
+  bool get starterOfferShown => _prefs.getBool('starter_offer_shown') ?? false;
+
+  set starterOfferShown(bool value) =>
+      _prefs.setBool('starter_offer_shown', value);
 
   bool isThemeUnlocked(BoardTheme t) {
     final product = t.productId;
@@ -156,3 +182,19 @@ class Progress {
 
 /// Produto da Play Store que remove os anúncios.
 const removeAdsProduct = 'remover_anuncios';
+
+/// Pacote inicial: remove anúncios, libera os temas pagos e dá dicas.
+const starterPackProduct = 'pacote_inicial';
+
+/// Dicas que vêm no pacote inicial.
+const starterPackHints = 20;
+
+/// Fases vencidas até oferecer o pacote inicial (uma única vez).
+const starterOfferAfterLevels = 5;
+
+/// Produtos incluídos no pacote inicial.
+final Set<String> starterPackIncludes = {
+  removeAdsProduct,
+  for (final t in boardThemes)
+    if (t.productId != null) t.productId!,
+};

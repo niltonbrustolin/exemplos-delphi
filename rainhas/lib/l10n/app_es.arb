@@ -114,5 +114,10 @@
   "helpDaily": "Desafío del día: un rompecabezas nuevo cada día, igual para todos los jugadores. Juega todos los días para aumentar tu racha — cada 7 días seguidos ganas pistas de bono.",
   "shareButton": "Compartir",
   "shareText": "¡Resolví {what} en {time} en 8 Queens! ¿Puedes superarme? {link}",
-  "shareFooter": "Juega gratis en Google Play"
+  "shareFooter": "Juega gratis en Google Play",
+  "starterPackTitle": "Paquete Inicial",
+  "starterPackDesc": "Sin anuncios + temas Mármol y Neón + {hints} pistas",
+  "starterOfferTitle": "¡Oferta especial!",
+  "starterOfferBody": "¡Lo estás haciendo muy bien! Llévate todo en un paquete por menos que comprando cada artículo por separado.",
+  "bestValue": "Mejor oferta"
 }

@@ -128,6 +128,7 @@ produtos (IDs exatamente iguais; todos são compras únicas):
 
 | ID do produto | O que libera | Preço sugerido |
 |---------------|--------------|----------------|
+| `pacote_inicial` | remover anúncios + temas Mármore e Neon + 20 dicas (oferecido depois da 5ª fase vencida) | R$ 12,90 |
 | `remover_anuncios` | tira banner e anúncios entre fases | R$ 9,90 |
 | `tema_marmore` | tema Mármore | R$ 4,90 |
 | `tema_neon` | tema Neon | R$ 4,90 |

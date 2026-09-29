@@ -415,4 +415,22 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get shareFooter => 'Jogue grátis no Google Play';
+
+  @override
+  String get starterPackTitle => 'Pacote Inicial';
+
+  @override
+  String starterPackDesc(int hints) {
+    return 'Sem anúncios + temas Mármore e Neon + $hints dicas';
+  }
+
+  @override
+  String get starterOfferTitle => 'Oferta especial!';
+
+  @override
+  String get starterOfferBody =>
+      'Você está indo muito bem! Leve tudo num pacote por menos do que comprando cada item separado.';
+
+  @override
+  String get bestValue => 'Melhor oferta';
 }

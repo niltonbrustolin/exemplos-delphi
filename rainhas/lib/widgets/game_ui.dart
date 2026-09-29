@@ -8,6 +8,7 @@ import '../game/levels.dart';
 import '../l10n/l10n.dart';
 import '../services/ads.dart';
 import '../services/progress.dart';
+import '../screens/store_screen.dart';
 import '../services/share.dart';
 import 'board_3d.dart';
 
@@ -110,7 +111,7 @@ Future<WinAction> finishLevel(
   final l = context.l10n;
   final next = level.next;
   final nextIsNewSize = next != null && next.n != level.n;
-  return await showResultDialog(
+  final action = await showResultDialog(
     context,
     title: level.daily ? l.dailyCompleteTitle : l.levelComplete,
     stars: stars,
@@ -136,6 +137,8 @@ Future<WinAction> finishLevel(
       streak: streak,
     ),
   );
+  if (firstWin && context.mounted) await maybeOfferStarterPack(context);
+  return action;
 }
 
 Future<WinAction> showResultDialog(

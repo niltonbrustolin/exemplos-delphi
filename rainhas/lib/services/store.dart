@@ -9,6 +9,7 @@ import 'progress.dart';
 /// Todos os produtos vendidos no app (cadastre os mesmos IDs na Play
 /// Console, como "produtos no app" do tipo não consumível).
 final Set<String> storeProducts = {
+  starterPackProduct,
   removeAdsProduct,
   for (final t in boardThemes)
     if (t.productId != null) t.productId!,

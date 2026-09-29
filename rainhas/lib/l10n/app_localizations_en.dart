@@ -416,4 +416,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareFooter => 'Play free on Google Play';
+
+  @override
+  String get starterPackTitle => 'Starter Pack';
+
+  @override
+  String starterPackDesc(int hints) {
+    return 'No ads + Marble and Neon themes + $hints hints';
+  }
+
+  @override
+  String get starterOfferTitle => 'Special offer!';
+
+  @override
+  String get starterOfferBody =>
+      'You\'re doing great! Get everything in one bundle for less than buying each item separately.';
+
+  @override
+  String get bestValue => 'Best value';
 }

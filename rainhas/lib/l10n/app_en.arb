@@ -140,5 +140,11 @@
   "shareButton": "Share",
   "shareText": "I solved {what} in {time} on 8 Queens! Can you beat me? {link}",
   "shareFooter": "Play free on Google Play",
-  "@shareText": {"placeholders": {"what": {"type": "String"}, "time": {"type": "String"}, "link": {"type": "String"}}}
+  "@shareText": {"placeholders": {"what": {"type": "String"}, "time": {"type": "String"}, "link": {"type": "String"}}},
+  "starterPackTitle": "Starter Pack",
+  "starterPackDesc": "No ads + Marble and Neon themes + {hints} hints",
+  "starterOfferTitle": "Special offer!",
+  "starterOfferBody": "You're doing great! Get everything in one bundle for less than buying each item separately.",
+  "bestValue": "Best value",
+  "@starterPackDesc": {"placeholders": {"hints": {"type": "int"}}}
 }

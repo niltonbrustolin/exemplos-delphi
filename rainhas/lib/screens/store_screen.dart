@@ -126,6 +126,10 @@ class _StoreScreenState extends State<StoreScreen> {
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ),
+            if (!progress.owns(starterPackProduct)) ...[
+              _StarterPackCard(buyButton: _buyButton(starterPackProduct)),
+              const SizedBox(height: 16),
+            ],
             Text(l.hintsSection, style: textTheme.titleLarge),
             Card(
               child: ListTile(
@@ -225,4 +229,110 @@ class _Swatch extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Cartão em destaque do pacote inicial.
+class _StarterPackCard extends StatelessWidget {
+  final Widget buyButton;
+
+  const _StarterPackCard({required this.buyButton});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      color: scheme.tertiaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            _starterInfo(context, l),
+            const SizedBox(height: 10),
+            buyButton,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _starterInfo(BuildContext context, AppLocalizations l) {
+    return Row(
+      children: [
+        const Icon(Icons.card_giftcard, size: 40),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l.bestValue.toUpperCase(),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Colors.amber,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                l.starterPackTitle,
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              Text(l.starterPackDesc(starterPackHints)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Oferece o pacote inicial uma única vez, depois de algumas fases vencidas.
+/// Só aparece se a loja estiver disponível e o pacote ainda não foi comprado.
+Future<void> maybeOfferStarterPack(BuildContext context) async {
+  final progress = Progress.instance;
+  final store = Store.instance;
+  final price = store.price(starterPackProduct);
+  if (progress.starterOfferShown ||
+      progress.owns(starterPackProduct) ||
+      progress.levelsWon < starterOfferAfterLevels ||
+      price == null) {
+    return;
+  }
+  progress.starterOfferShown = true;
+  final l = context.l10n;
+  final buy = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      icon: const Icon(Icons.card_giftcard, size: 44),
+      title: Text(l.starterOfferTitle),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(l.starterOfferBody, textAlign: TextAlign.center),
+          const SizedBox(height: 12),
+          Text(
+            l.starterPackTitle,
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          Text(
+            l.starterPackDesc(starterPackHints),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: Text(l.notNow),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: Text(price),
+        ),
+      ],
+    ),
+  );
+  if (buy == true) await store.buy(starterPackProduct);
 }

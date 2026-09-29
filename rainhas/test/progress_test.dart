@@ -61,4 +61,25 @@ void main() {
     await p.grant(removeAdsProduct);
     expect(p.adsRemoved, isTrue);
   });
+
+  test('pacote inicial: libera tudo e dá as dicas uma só vez', () async {
+    final p = Progress.instance;
+    final hints = p.hints;
+    expect(await p.grant(starterPackProduct), isTrue);
+    expect(p.adsRemoved, isTrue);
+    expect(p.isThemeUnlocked(themeById('marmore')), isTrue);
+    expect(p.isThemeUnlocked(themeById('neon')), isTrue);
+    expect(p.hints, hints + starterPackHints);
+    // Restaurar a compra não dá as dicas de novo.
+    expect(await p.grant(starterPackProduct), isFalse);
+    expect(p.hints, hints + starterPackHints);
+  });
+
+  test('conta as fases vencidas', () async {
+    final p = Progress.instance;
+    expect(p.levelsWon, 0);
+    await p.saveStars(const LevelRef(GameMode.tour, 5, 1), 3);
+    await p.saveStars(const LevelRef(GameMode.queens, 5, 1), 1);
+    expect(p.levelsWon, 2);
+  });
 }

@@ -114,5 +114,10 @@
   "helpDaily": "Desafio do dia: um quebra-cabeça novo por dia, igual para todos os jogadores. Jogue todo dia para aumentar sua sequência — a cada 7 dias seguidos você ganha dicas de bônus.",
   "shareButton": "Compartilhar",
   "shareText": "Resolvi {what} em {time} no 8 Queens! Consegue fazer melhor? {link}",
-  "shareFooter": "Jogue grátis no Google Play"
+  "shareFooter": "Jogue grátis no Google Play",
+  "starterPackTitle": "Pacote Inicial",
+  "starterPackDesc": "Sem anúncios + temas Mármore e Neon + {hints} dicas",
+  "starterOfferTitle": "Oferta especial!",
+  "starterOfferBody": "Você está indo muito bem! Leve tudo num pacote por menos do que comprando cada item separado.",
+  "bestValue": "Melhor oferta"
 }

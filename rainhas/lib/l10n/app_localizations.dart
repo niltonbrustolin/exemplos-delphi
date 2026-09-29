@@ -735,6 +735,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Play free on Google Play'**
   String get shareFooter;
+
+  /// No description provided for @starterPackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Starter Pack'**
+  String get starterPackTitle;
+
+  /// No description provided for @starterPackDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'No ads + Marble and Neon themes + {hints} hints'**
+  String starterPackDesc(int hints);
+
+  /// No description provided for @starterOfferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Special offer!'**
+  String get starterOfferTitle;
+
+  /// No description provided for @starterOfferBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re doing great! Get everything in one bundle for less than buying each item separately.'**
+  String get starterOfferBody;
+
+  /// No description provided for @bestValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Best value'**
+  String get bestValue;
 }
 
 class _AppLocalizationsDelegate
