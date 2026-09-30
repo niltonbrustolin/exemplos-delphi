@@ -230,16 +230,25 @@ class GameScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: boardFlat,
+      builder: (context, flat, _) => _build(context, flat),
+    );
+  }
+
+  Widget _build(BuildContext context, bool flat) {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
         actions: [
           ...extraActions,
-          IconButton(
-            tooltip: context.l10n.centerCamera,
-            onPressed: () => boardKey.currentState?.resetCamera(),
-            icon: const Icon(Icons.threed_rotation),
-          ),
+          const ViewToggle(),
+          if (!flat)
+            IconButton(
+              tooltip: context.l10n.centerCamera,
+              onPressed: () => boardKey.currentState?.resetCamera(),
+              icon: const Icon(Icons.threed_rotation),
+            ),
           PopupMenuButton<String>(
             onSelected: (v) => v == 'restart' ? onRestart() : onHelp(),
             itemBuilder: (_) => [
@@ -267,7 +276,7 @@ class GameScaffold extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    context.l10n.dragHint,
+                    flat ? context.l10n.tapHint : context.l10n.dragHint,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   Expanded(child: board),
@@ -297,6 +306,26 @@ class GameScaffold extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Botão que alterna entre o tabuleiro 3D e a vista plana (2D).
+class ViewToggle extends StatelessWidget {
+  const ViewToggle({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: boardFlat,
+      builder: (context, flat, _) => IconButton(
+        tooltip: flat ? context.l10n.view3d : context.l10n.view2d,
+        onPressed: () {
+          boardFlat.value = !flat;
+          Progress.instance.flatBoard = !flat;
+        },
+        icon: Icon(flat ? Icons.view_in_ar : Icons.grid_on),
       ),
     );
   }

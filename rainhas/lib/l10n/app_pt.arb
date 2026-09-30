@@ -8,14 +8,12 @@
   "store": "Loja",
   "howToPlay": "Como jogar",
   "about": "Sobre",
-
   "modeQueensTitle": "Desafios das Rainhas",
   "modeTourTitle": "Passeio do Cavalo",
   "modeKnightsTitle": "Cavalos sem Ataque",
   "modeQueensShort": "Rainhas",
   "modeTourShort": "Passeio do Cavalo",
   "modeKnightsShort": "Cavalos sem Ataque",
-
   "dailyTitle": "Desafio do dia",
   "dailyPlay": "Jogar",
   "dailyDone": "Feito! Volte amanhã",
@@ -24,12 +22,10 @@
   "dailyCompleteTitle": "Desafio do dia concluído!",
   "streakBonus": "Bônus de sequência: +{hints} dicas!",
   "streakLine": "{count, plural, =1{Sequência: 1 dia} other{Sequência: {count} dias}}",
-
   "boardSize": "Tabuleiro {n}×{n}",
   "beatPreviousBoard": "Vença o tabuleiro anterior",
   "solutionsProgress": "Soluções: {found} de {total}",
   "bestTimeSuffix": " · recorde {time}",
-
   "dragHint": "Arraste para girar · use dois dedos para aproximar",
   "undo": "Desfazer",
   "hintButton": "Dica ({count})",
@@ -53,7 +49,6 @@
   "nextLevel": "Próxima",
   "levelTitle": "Fase {number} · {n}×{n}",
   "classicTitle": "Clássico {n}×{n}",
-
   "newSolution": "Nova solução!",
   "solved": "Resolvido!",
   "alreadyFound": "Você já tinha encontrado esta solução.",
@@ -63,13 +58,11 @@
   "hintRemoveQueen": "A rainha destacada não faz parte da solução.",
   "hintPlaceKnight": "Tente colocar um cavalo na casa destacada.",
   "hintRemoveKnight": "Tire o cavalo destacado.",
-
   "tourVisited": "Essa casa já foi visitada.",
   "tourLMove": "O cavalo anda em \"L\": escolha uma casa verde.",
   "tourStuck": "Sem saída! Desfaça algumas jogadas.",
   "tourHintJump": "Pule para a casa destacada.",
   "tourHintBack": "{count, plural, =1{Este caminho não fecha. Desfaça 1 jogada (volte até a casa {square}).} other{Este caminho não fecha. Desfaça {count} jogadas (volte até a casa {square}).}}",
-
   "storeUnavailable": "As compras ficam disponíveis quando o app é instalado pela Google Play.",
   "purchaseError": "Erro na compra: {error}",
   "hintsSection": "Dicas",
@@ -94,7 +87,6 @@
   "themeTournament": "Torneio",
   "themeMarble": "Mármore",
   "themeNeon": "Neon",
-
   "version": "Versão {version}",
   "developedBy": "Desenvolvido por",
   "contact": "Contato",
@@ -103,7 +95,6 @@
   "aboutInspiration": "Inspirado no problema das oito rainhas, proposto em 1848 por Max Bezzel, e no passeio do cavalo, estudado por Euler.",
   "language": "Idioma",
   "languageSystem": "Padrão do celular",
-
   "gotIt": "Entendi",
   "helpQueens": "Coloque N rainhas num tabuleiro N×N sem que nenhuma ataque outra. A rainha ataca em linha reta: na mesma linha, na mesma coluna e nas diagonais.\n\n• Toque numa casa para colocar ou tirar uma rainha.\n• Rainhas em vermelho estão se atacando.\n• O botão de olho marca as casas que estão sob ataque.",
   "helpClassic": "Modo Clássico: o tabuleiro começa vazio e não há fases. Cada tamanho tem várias soluções — no 8×8 são 92. Quantas você consegue achar?",
@@ -134,5 +125,28 @@
   "tutorialSkip": "Pular",
   "tutorialNext": "Próximo",
   "tutorialStart": "Vamos jogar!",
-  "tutorialAllRules": "Ver todas as regras"
+  "tutorialAllRules": "Ver todas as regras",
+  "welcomeTitle": "Novo por aqui?",
+  "welcomeBody": "São três jogos de lógica no tabuleiro. Escolha um abaixo para começar agora, ou veja como jogar em 30 segundos.",
+  "welcomeHowTo": "Ver como jogar",
+  "welcomeDismiss": "Entendi",
+  "classicDesc": "Tabuleiro vazio, sem fases: ache todas as soluções.",
+  "challengesDesc": "Fases com rainhas fixas e uma única solução.",
+  "tutorialPlayMode": "Jogar este modo",
+  "view2d": "Vista 2D (plana)",
+  "view3d": "Vista 3D",
+  "tapHint": "Toque numa casa para jogar",
+  "a11yBoard": "Tabuleiro {n} por {n}. Use as setas para escolher a casa e Enter para jogar.",
+  "a11yEmpty": "vazia",
+  "a11yQueen": "rainha",
+  "a11yFixedQueen": "rainha fixa",
+  "a11yKnight": "cavalo",
+  "a11yConflict": "em conflito",
+  "a11yBlocked": "bloqueada",
+  "a11yStep": "passo {step}",
+  "a11yAttacked": "atacada",
+  "a11yCanJump": "dá para pular aqui",
+  "a11yHint": "dica",
+  "a11yHints": "{count} dicas",
+  "a11yStars": "{count} estrelas"
 }

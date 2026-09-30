@@ -15,9 +15,12 @@ o problema das oito rainhas e desafios com o cavalo. Tabuleiro e peças em
 
 ## O que o app tem
 
+- **Entrada direta**: o app abre na tela inicial, com cada modo explicado
+  numa linha. Na primeira visita aparece o cartão "Novo por aqui?", que
+  oferece o tutorial sem obrigar ninguém a vê-lo.
 - **Tutorial animado ("Como jogar")**: três páginas, uma por jogo, com um
-  tabuleiro 3D que joga sozinho e legendas. Aparece na primeira vez que o app
-  é aberto; os roteiros ficam em `lib/game/demos.dart`.
+  tabuleiro que joga sozinho e legendas. Cada página tem "Jogar este modo",
+  que leva direto ao jogo. Os roteiros ficam em `lib/game/demos.dart`.
 
 - **Rainhas — Modo Clássico**: tabuleiros de 4×4 a 12×12, sem fases. O
   jogador tenta achar todas as soluções de cada tamanho (no 8×8 são 92).
@@ -35,6 +38,13 @@ o problema das oito rainhas e desafios com o cavalo. Tabuleiro e peças em
   saldo, o jogador pode assistir a um vídeo para ganhar +2.
 - **Tabuleiro 3D**: rainha e cavalo modelados em 3D, câmera que gira com o
   dedo, zoom com dois dedos, peças que caem e pulam, comemoração na vitória.
+- **Vista 2D (plana)**: botão na barra do jogo que mostra o tabuleiro visto de
+  cima, com as casas nomeadas (a–h, 1–8). Mais preciso em telas pequenas; a
+  escolha fica salva.
+- **Acessibilidade**: cada casa do tabuleiro tem nome e conteúdo para o leitor
+  de tela (TalkBack/VoiceOver), por exemplo "c3, rainha, em conflito" ou "d5,
+  dá para pular aqui". No computador, Tab leva ao tabuleiro, as setas escolhem
+  a casa e Enter/Espaço jogam. Na versão web a acessibilidade já vem ligada.
 - **Monetização**: banner, anúncio de tela cheia a cada 3 vitórias, vídeo
   com recompensa (dicas), compra "Remover anúncios" e temas pagos (Mármore e
   Neon). O tema Torneio é liberado de graça com 60 estrelas.
@@ -42,8 +52,10 @@ o problema das oito rainhas e desafios com o cavalo. Tabuleiro e peças em
   alternando rainhas, passeio e cavalos, com **sequência de dias** (🔥) e
   bônus de 3 dicas a cada 7 dias seguidos.
 - **Três idiomas**: português, inglês e espanhol. O app segue o idioma do
-  celular (idioma sem tradução cai no inglês) e há um seletor na tela Sobre.
-  Os textos ficam em `lib/l10n/app_*.arb`.
+  celular (idioma sem tradução cai no inglês) e há um seletor sempre visível
+  no canto da tela inicial. Na web, o endereço pode fixar o idioma:
+  `.../jogar/?lang=pt`, `?lang=en` ou `?lang=es`. Os textos ficam em
+  `lib/l10n/app_*.arb`.
 - **Compartilhar o resultado**: ao vencer, o botão Compartilhar gera uma
   imagem (1080×1350) com o tabuleiro 3D resolvido, estrelas, tempo e
   sequência, e abre o menu de compartilhamento (WhatsApp, Instagram...).
@@ -107,7 +119,7 @@ docs/                         política de privacidade e textos da loja
   trilha de **teste interno** (até 100 testadores, instalam pela Play Store e
   as compras funcionam em modo de teste).
 - **iPhone (e qualquer celular ou computador)**: versão web em
-  https://niltonbrustolin.github.io/exemplos-delphi/8queens/jogar/ — abre no
+  https://niltonbrustolin.github.io/exemplos-delphi/8queens/jogar/?lang=pt — abre no
   Safari; em *Compartilhar › Adicionar à Tela de Início* vira um ícone como
   app. Na web não há anúncios nem compras. Para atualizar a versão web:
   ```

@@ -186,9 +186,20 @@ class _TourGameScreenState extends State<TourGameScreen> with GameClock {
           for (final p in _path.take(_path.length - 1))
             CellMark(p, MarkKind.fill, _visitedColor),
           if (!_won)
-            for (final p in _moves) CellMark(p, MarkKind.dot, _moveColor),
+            for (final p in _moves)
+              CellMark(
+                p,
+                MarkKind.dot,
+                _moveColor,
+                label: context.l10n.a11yCanJump,
+              ),
           if (highlight != null)
-            CellMark(highlight.$1, MarkKind.frame, highlight.$2),
+            CellMark(
+              highlight.$1,
+              MarkKind.frame,
+              highlight.$2,
+              label: context.l10n.a11yHint,
+            ),
         ],
         labels: {
           for (var i = 0; i < _path.length - 1; i++) _path[i]: '${i + 1}',

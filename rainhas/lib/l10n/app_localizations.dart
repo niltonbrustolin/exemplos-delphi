@@ -855,6 +855,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'See all the rules'**
   String get tutorialAllRules;
+
+  /// No description provided for @welcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New here?'**
+  String get welcomeTitle;
+
+  /// No description provided for @welcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Three logic puzzles on a chessboard. Pick one below to start right away, or watch how to play in 30 seconds.'**
+  String get welcomeBody;
+
+  /// No description provided for @welcomeHowTo.
+  ///
+  /// In en, this message translates to:
+  /// **'How to play'**
+  String get welcomeHowTo;
+
+  /// No description provided for @welcomeDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get welcomeDismiss;
+
+  /// No description provided for @classicDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty board, no levels: find every solution.'**
+  String get classicDesc;
+
+  /// No description provided for @challengesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Levels with fixed queens and a single solution.'**
+  String get challengesDesc;
+
+  /// No description provided for @tutorialPlayMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Play this mode'**
+  String get tutorialPlayMode;
+
+  /// No description provided for @view2d.
+  ///
+  /// In en, this message translates to:
+  /// **'Flat 2D view'**
+  String get view2d;
+
+  /// No description provided for @view3d.
+  ///
+  /// In en, this message translates to:
+  /// **'3D view'**
+  String get view3d;
+
+  /// No description provided for @tapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a square to play'**
+  String get tapHint;
+
+  /// No description provided for @a11yBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Board {n} by {n}. Use the arrow keys to choose a square and Enter to play.'**
+  String a11yBoard(int n);
+
+  /// No description provided for @a11yEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'empty'**
+  String get a11yEmpty;
+
+  /// No description provided for @a11yQueen.
+  ///
+  /// In en, this message translates to:
+  /// **'queen'**
+  String get a11yQueen;
+
+  /// No description provided for @a11yFixedQueen.
+  ///
+  /// In en, this message translates to:
+  /// **'fixed queen'**
+  String get a11yFixedQueen;
+
+  /// No description provided for @a11yKnight.
+  ///
+  /// In en, this message translates to:
+  /// **'knight'**
+  String get a11yKnight;
+
+  /// No description provided for @a11yConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'under attack'**
+  String get a11yConflict;
+
+  /// No description provided for @a11yBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'blocked'**
+  String get a11yBlocked;
+
+  /// No description provided for @a11yStep.
+  ///
+  /// In en, this message translates to:
+  /// **'step {step}'**
+  String a11yStep(int step);
+
+  /// No description provided for @a11yAttacked.
+  ///
+  /// In en, this message translates to:
+  /// **'attacked'**
+  String get a11yAttacked;
+
+  /// No description provided for @a11yCanJump.
+  ///
+  /// In en, this message translates to:
+  /// **'you can jump here'**
+  String get a11yCanJump;
+
+  /// No description provided for @a11yHint.
+  ///
+  /// In en, this message translates to:
+  /// **'hint'**
+  String get a11yHint;
+
+  /// No description provided for @a11yHints.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hints'**
+  String a11yHints(int count);
+
+  /// No description provided for @a11yStars.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} stars'**
+  String a11yStars(int count);
 }
 
 class _AppLocalizationsDelegate

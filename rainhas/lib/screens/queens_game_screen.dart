@@ -234,9 +234,19 @@ class _QueensGameScreenState extends State<QueensGameScreen> with GameClock {
         marks: [
           if (showAttacks)
             for (final p in attackedCells(n, all))
-              CellMark(p, MarkKind.dot, _attackColor),
+              CellMark(
+                p,
+                MarkKind.dot,
+                _attackColor,
+                label: context.l10n.a11yAttacked,
+              ),
           if (_highlight != null)
-            CellMark(_highlight!, MarkKind.frame, _hintColor),
+            CellMark(
+              _highlight!,
+              MarkKind.frame,
+              _hintColor,
+              label: context.l10n.a11yHint,
+            ),
         ],
         celebrate: _won,
         onTap: _toggle,

@@ -14,7 +14,7 @@ const _moveColor = Color(0xDD43A047);
 const _visitedColor = Color(0x66000000);
 
 /// Tutorial animado: uma página por jogo, com um tabuleiro 3D que joga
-/// sozinho. Aparece na primeira abertura do app e em "Como jogar".
+/// sozinho. Abre pelo cartão de boas-vindas e por "Como jogar".
 class TutorialScreen extends StatefulWidget {
   const TutorialScreen({super.key});
 
@@ -34,9 +34,16 @@ class _TutorialScreenState extends State<TutorialScreen> {
     super.dispose();
   }
 
-  void _finish() {
+  static const _bigButton = ButtonStyle(
+    padding: WidgetStatePropertyAll(
+      EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+    ),
+  );
+
+  /// Fecha o tutorial; com [mode], a tela inicial abre esse jogo em seguida.
+  void _finish([GameMode? mode]) {
     Progress.instance.tutorialSeen = true;
-    Navigator.pop(context);
+    Navigator.pop(context, mode);
   }
 
   @override
@@ -50,7 +57,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: _finish,
+                onPressed: () => _finish(),
                 child: Text(l.tutorialSkip),
               ),
             ),
@@ -83,22 +90,35 @@ class _TutorialScreenState extends State<TutorialScreen> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  style: const ButtonStyle(
-                    padding: WidgetStatePropertyAll(
-                      EdgeInsets.symmetric(vertical: 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      style: _bigButton,
+                      onPressed: () => _finish(_modes[_page]),
+                      child: Text(
+                        l.tutorialPlayMode,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
-                  onPressed: last
-                      ? _finish
-                      : () => _pages.nextPage(
-                          duration: const Duration(milliseconds: 350),
-                          curve: Curves.easeOut,
-                        ),
-                  child: Text(last ? l.tutorialStart : l.tutorialNext),
-                ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      style: _bigButton,
+                      onPressed: last
+                          ? _finish
+                          : () => _pages.nextPage(
+                              duration: const Duration(milliseconds: 350),
+                              curve: Curves.easeOut,
+                            ),
+                      child: Text(
+                        last ? l.tutorialStart : l.tutorialNext,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             TextButton(

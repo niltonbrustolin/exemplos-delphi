@@ -5,6 +5,7 @@ import 'package:rainhas/game/demos.dart';
 import 'package:rainhas/game/knights.dart';
 import 'package:rainhas/l10n/l10n.dart';
 import 'package:rainhas/main.dart';
+import 'package:rainhas/screens/classic_select_screen.dart';
 import 'package:rainhas/services/progress.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -42,26 +43,72 @@ void main() {
     }
   });
 
-  testWidgets('tutorial aparece na primeira abertura', (tester) async {
+  Future<void> openApp(WidgetTester tester) async {
     SharedPreferences.setMockInitialValues({'language': 'pt'});
     await Progress.load();
     appLanguage.value = 'pt';
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
-
     await tester.pumpWidget(const EightQueensApp());
     await tester.pump();
+  }
+
+  testWidgets('primeira abertura vai direto à tela inicial, com boas-vindas', (
+    tester,
+  ) async {
+    await openApp(tester);
+    // Nada de tutorial forçado: os modos já aparecem, cada um explicado.
+    expect(find.text('Novo por aqui?'), findsOneWidget);
+    expect(find.text('Modo Clássico', skipOffstage: false), findsOneWidget);
+    expect(
+      find.text(
+        'Tabuleiro vazio, sem fases: ache todas as soluções.',
+        skipOffstage: false,
+      ),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.text('Entendi'));
+    await tester.pump();
+    expect(Progress.instance.tutorialSeen, isTrue);
+    expect(find.text('Novo por aqui?'), findsNothing);
+  });
+
+  testWidgets('tutorial abre pelo cartão e leva direto ao modo', (
+    tester,
+  ) async {
+    await openApp(tester);
+    await tester.tap(find.text('Ver como jogar'));
+    await tester.pump();
     await tester.pump(const Duration(milliseconds: 600));
-    expect(find.text('Pular'), findsOneWidget);
     expect(
       find.text('Toque numa casa para colocar uma rainha'),
       findsOneWidget,
     );
 
-    await tester.tap(find.text('Pular'));
+    await tester.tap(find.text('Jogar este modo'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
     await tester.pump(const Duration(milliseconds: 600));
     expect(Progress.instance.tutorialSeen, isTrue);
-    expect(find.text('Modo Clássico'), findsOneWidget);
+    expect(find.byType(ClassicSelectScreen), findsOneWidget);
+  });
+
+  testWidgets('idioma pelo endereço e seletor na tela inicial', (tester) async {
+    expect(languageFromUrl(Uri.parse('https://x/jogar/?lang=es')), 'es');
+    expect(languageFromUrl(Uri.parse('https://x/jogar/?lang=pt-BR')), 'pt');
+    expect(languageFromUrl(Uri.parse('https://x/jogar/?lang=de')), isNull);
+    expect(languageFromUrl(Uri.parse('https://x/jogar/')), isNull);
+
+    await openApp(tester);
+    await tester.tap(find.text('PT'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.tap(find.text('English').last);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Classic Mode', skipOffstage: false), findsOneWidget);
+    expect(Progress.instance.language, 'en');
   });
 }

@@ -176,9 +176,19 @@ class _KnightsGameScreenState extends State<KnightsGameScreen> with GameClock {
             for (final k in _placed)
               for (final q in knightMoves(n, k, _level.blocked))
                 if (!_placed.contains(q))
-                  CellMark(q, MarkKind.dot, _attackColor),
+                  CellMark(
+                    q,
+                    MarkKind.dot,
+                    _attackColor,
+                    label: context.l10n.a11yAttacked,
+                  ),
           if (_highlight != null)
-            CellMark(_highlight!, MarkKind.frame, _hintColor),
+            CellMark(
+              _highlight!,
+              MarkKind.frame,
+              _hintColor,
+              label: context.l10n.a11yHint,
+            ),
         ],
         celebrate: _won,
         pitch: knightPitch,

@@ -124,10 +124,15 @@ class Progress {
 
   set language(String code) => _prefs.setString('language', code);
 
-  /// O tutorial animado já foi visto (aparece sozinho na primeira vez).
+  /// O jogador já viu (ou dispensou) o cartão de boas-vindas.
   bool get tutorialSeen => _prefs.getBool('tutorial_seen') ?? false;
 
   set tutorialSeen(bool value) => _prefs.setBool('tutorial_seen', value);
+
+  /// Tabuleiro plano, visto de cima (vista 2D).
+  bool get flatBoard => _prefs.getBool('flat_board') ?? false;
+
+  set flatBoard(bool value) => _prefs.setBool('flat_board', value);
 
   // --- Temas e compras ---
 

@@ -8,14 +8,12 @@
   "store": "Tienda",
   "howToPlay": "Cómo jugar",
   "about": "Acerca de",
-
   "modeQueensTitle": "Desafíos de las Reinas",
   "modeTourTitle": "Recorrido del Caballo",
   "modeKnightsTitle": "Caballos en Paz",
   "modeQueensShort": "Reinas",
   "modeTourShort": "Recorrido del Caballo",
   "modeKnightsShort": "Caballos en Paz",
-
   "dailyTitle": "Desafío del día",
   "dailyPlay": "Jugar",
   "dailyDone": "¡Hecho! Vuelve mañana",
@@ -24,12 +22,10 @@
   "dailyCompleteTitle": "¡Desafío del día completado!",
   "streakBonus": "Bono de racha: ¡+{hints} pistas!",
   "streakLine": "{count, plural, =1{Racha: 1 día} other{Racha: {count} días}}",
-
   "boardSize": "Tablero {n}×{n}",
   "beatPreviousBoard": "Supera el tablero anterior",
   "solutionsProgress": "Soluciones: {found} de {total}",
   "bestTimeSuffix": " · récord {time}",
-
   "dragHint": "Arrastra para girar · pellizca para acercar",
   "undo": "Deshacer",
   "hintButton": "Pista ({count})",
@@ -53,7 +49,6 @@
   "nextLevel": "Siguiente",
   "levelTitle": "Nivel {number} · {n}×{n}",
   "classicTitle": "Clásico {n}×{n}",
-
   "newSolution": "¡Nueva solución!",
   "solved": "¡Resuelto!",
   "alreadyFound": "Ya habías encontrado esta solución.",
@@ -63,13 +58,11 @@
   "hintRemoveQueen": "La reina resaltada no forma parte de la solución.",
   "hintPlaceKnight": "Intenta poner un caballo en la casilla resaltada.",
   "hintRemoveKnight": "Quita el caballo resaltado.",
-
   "tourVisited": "Esa casilla ya fue visitada.",
   "tourLMove": "El caballo se mueve en \"L\": elige una casilla verde.",
   "tourStuck": "¡Sin salida! Deshaz algunos movimientos.",
   "tourHintJump": "Salta a la casilla resaltada.",
   "tourHintBack": "{count, plural, =1{Este camino no tiene salida. Deshaz 1 movimiento (vuelve a la casilla {square}).} other{Este camino no tiene salida. Deshaz {count} movimientos (vuelve a la casilla {square}).}}",
-
   "storeUnavailable": "Las compras estarán disponibles cuando la app se instale desde Google Play.",
   "purchaseError": "Error en la compra: {error}",
   "hintsSection": "Pistas",
@@ -94,7 +87,6 @@
   "themeTournament": "Torneo",
   "themeMarble": "Mármol",
   "themeNeon": "Neón",
-
   "version": "Versión {version}",
   "developedBy": "Desarrollado por",
   "contact": "Contacto",
@@ -103,7 +95,6 @@
   "aboutInspiration": "Inspirado en el problema de las ocho reinas, propuesto en 1848 por Max Bezzel, y en el recorrido del caballo, estudiado por Euler.",
   "language": "Idioma",
   "languageSystem": "Predeterminado del teléfono",
-
   "gotIt": "Entendido",
   "helpQueens": "Coloca N reinas en un tablero N×N sin que ninguna ataque a otra. La reina ataca en línea recta: en su fila, en su columna y en sus diagonales.\n\n• Toca una casilla para poner o quitar una reina.\n• Las reinas en rojo se están atacando.\n• El botón del ojo marca las casillas atacadas.",
   "helpClassic": "Modo Clásico: el tablero empieza vacío y no hay niveles. Cada tamaño tiene varias soluciones — en el 8×8 hay 92. ¿Cuántas puedes encontrar?",
@@ -134,5 +125,28 @@
   "tutorialSkip": "Saltar",
   "tutorialNext": "Siguiente",
   "tutorialStart": "¡A jugar!",
-  "tutorialAllRules": "Ver todas las reglas"
+  "tutorialAllRules": "Ver todas las reglas",
+  "welcomeTitle": "¿Nuevo por aquí?",
+  "welcomeBody": "Son tres juegos de lógica en el tablero. Elige uno abajo para empezar ya, o mira cómo se juega en 30 segundos.",
+  "welcomeHowTo": "Ver cómo jugar",
+  "welcomeDismiss": "Entendido",
+  "classicDesc": "Tablero vacío, sin niveles: encuentra todas las soluciones.",
+  "challengesDesc": "Niveles con reinas fijas y una sola solución.",
+  "tutorialPlayMode": "Jugar este modo",
+  "view2d": "Vista 2D (plana)",
+  "view3d": "Vista 3D",
+  "tapHint": "Toca una casilla para jugar",
+  "a11yBoard": "Tablero de {n} por {n}. Usa las flechas para elegir la casilla y Enter para jugar.",
+  "a11yEmpty": "vacía",
+  "a11yQueen": "reina",
+  "a11yFixedQueen": "reina fija",
+  "a11yKnight": "caballo",
+  "a11yConflict": "en conflicto",
+  "a11yBlocked": "bloqueada",
+  "a11yStep": "paso {step}",
+  "a11yAttacked": "atacada",
+  "a11yCanJump": "puedes saltar aquí",
+  "a11yHint": "pista",
+  "a11yHints": "{count} pistas",
+  "a11yStars": "{count} estrellas"
 }

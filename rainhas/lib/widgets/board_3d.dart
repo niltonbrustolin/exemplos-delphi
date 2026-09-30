@@ -1,9 +1,12 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import '../game/board.dart';
+import '../l10n/l10n.dart';
 import '../render3d/math3d.dart';
 import '../render3d/meshes.dart';
 import '../render3d/renderer.dart';
@@ -12,6 +15,11 @@ import '../services/progress.dart';
 
 const _conflictColor = Color(0xFFE53935);
 const _shadowColor = Color(0x59000000);
+const _cursorColor = Color(0xFF40C4FF);
+
+/// Vista plana (2D, de cima) em vez da 3D. O tabuleiro se redesenha quando
+/// ela muda.
+final boardFlat = ValueNotifier<bool>(false);
 
 const _dropDuration = Duration(milliseconds: 550);
 const _hopDuration = Duration(milliseconds: 380);
@@ -44,8 +52,16 @@ class CellMark {
   final MarkKind kind;
   final Color color;
 
-  const CellMark(this.pos, this.kind, this.color);
+  /// O que a marca significa, para o leitor de tela.
+  final String? label;
+
+  const CellMark(this.pos, this.kind, this.color, {this.label});
 }
+
+/// Nome da casa como no xadrez: coluna em letra e linha em número (a
+/// linha 0 fica ao fundo, com o número mais alto).
+String cellName(int n, Pos p) =>
+    '${String.fromCharCode(97 + p.col)}${n - p.row}';
 
 /// Centro da casa no mundo 3D (linha 0 fica ao fundo).
 Vec3 cellCenter(int n, Pos p) =>
@@ -142,6 +158,9 @@ class Board3D extends StatefulWidget {
   /// Inclinação inicial da câmera (menor = mais de lado).
   final double pitch;
 
+  /// Força a vista plana (`true`) ou 3D (`false`); `null` segue [boardFlat].
+  final bool? flat;
+
   const Board3D({
     super.key,
     required this.n,
@@ -153,6 +172,7 @@ class Board3D extends StatefulWidget {
     this.onTap,
     this.theme,
     this.pitch = defaultPitch,
+    this.flat,
   });
 
   @override
@@ -170,6 +190,27 @@ class Board3DState extends State<Board3D> with SingleTickerProviderStateMixin {
   double _startYaw = 0, _startPitch = 0, _startZoom = 1;
   Offset _startFocal = Offset.zero;
   Size _size = Size.zero;
+
+  /// Casa escolhida pelo teclado (aparece quando o tabuleiro tem o foco).
+  final _focus = FocusNode(debugLabel: 'tabuleiro');
+  Pos _cursor = const Pos(0, 0);
+
+  @override
+  void initState() {
+    super.initState();
+    _focus.addListener(_refresh);
+    FocusManager.instance.addHighlightModeListener(_onHighlightMode);
+  }
+
+  void _refresh() => setState(() {});
+
+  void _onHighlightMode(FocusHighlightMode _) => _refresh();
+
+  /// A casa do teclado só aparece quando se está usando o teclado (não
+  /// depois de um toque ou clique).
+  bool get _showCursor =>
+      _focus.hasFocus &&
+      FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
 
   BoardTheme get _theme => widget.theme ?? Progress.instance.theme;
 
@@ -195,6 +236,8 @@ class Board3DState extends State<Board3D> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     _ticker.dispose();
+    FocusManager.instance.removeHighlightModeListener(_onHighlightMode);
+    _focus.dispose();
     super.dispose();
   }
 
@@ -302,39 +345,227 @@ class Board3DState extends State<Board3D> with SingleTickerProviderStateMixin {
     return (p - (a + ab * t)).distance;
   }
 
+  /// Marcas da tela, com a casa do teclado quando o tabuleiro tem o foco.
+  List<CellMark> get _marks => [
+    ...widget.marks,
+    if (_showCursor) CellMark(_cursor, MarkKind.frame, _cursorColor),
+  ];
+
+  KeyEventResult _onKey(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+    final n = widget.n;
+    final key = event.logicalKey;
+    final (dr, dc) = switch (key) {
+      LogicalKeyboardKey.arrowUp => (-1, 0),
+      LogicalKeyboardKey.arrowDown => (1, 0),
+      LogicalKeyboardKey.arrowLeft => (0, -1),
+      LogicalKeyboardKey.arrowRight => (0, 1),
+      _ => (0, 0),
+    };
+    if (dr != 0 || dc != 0) {
+      setState(() {
+        _cursor = Pos(
+          (_cursor.row + dr).clamp(0, n - 1),
+          (_cursor.col + dc).clamp(0, n - 1),
+        );
+      });
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.enter ||
+        key == LogicalKeyboardKey.numpadEnter ||
+        key == LogicalKeyboardKey.space) {
+      widget.onTap?.call(_cursor);
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  /// Descrição da casa para o leitor de tela: "c3, rainha, em conflito".
+  String _cellLabel(AppLocalizations l, Pos p) {
+    final parts = <String>[];
+    for (final piece in widget.pieces) {
+      if (piece.pos != p) continue;
+      parts.add(switch (piece.kind) {
+        PieceKind.knight => l.a11yKnight,
+        PieceKind.queen when piece.role == PieceRole.fixed => l.a11yFixedQueen,
+        PieceKind.queen => l.a11yQueen,
+      });
+      if (piece.role == PieceRole.conflict) parts.add(l.a11yConflict);
+    }
+    if (widget.blocked.contains(p)) parts.add(l.a11yBlocked);
+    final step = int.tryParse(widget.labels[p] ?? '');
+    if (step != null) parts.add(l.a11yStep(step));
+    for (final m in widget.marks) {
+      if (m.pos == p && m.label != null) parts.add(m.label!);
+    }
+    if (parts.isEmpty) parts.add(l.a11yEmpty);
+    return '${cellName(widget.n, p)}, ${parts.join(', ')}';
+  }
+
+  /// Área da casa na tela (na vista 3D, inclui a peça que está em pé nela).
+  Rect _cellRect(Pos p, _FlatLayout? flat) {
+    if (flat != null) return flat.rect(p);
+    final cam = _camera;
+    final c = cellCenter(widget.n, p);
+    final points = <Offset?>[
+      for (final (dx, dz) in const [(-.5, -.5), (.5, -.5), (.5, .5), (-.5, .5)])
+        cam.project(c + Vec3(dx, 0, dz)),
+    ];
+    for (final piece in widget.pieces) {
+      if (piece.pos != p) continue;
+      final top =
+          c + Vec3(0, pieceHeight(piece.kind) * pieceScale(piece.kind), 0);
+      final at = cam.project(top);
+      if (at != null) {
+        final r = 0.3 * cam.focal / cam.depth(top);
+        points
+          ..add(at - Offset(r, r))
+          ..add(at + Offset(r, r));
+      }
+    }
+    final valid = points.whereType<Offset>().toList();
+    if (valid.isEmpty) return Rect.zero;
+    var rect = Rect.fromPoints(valid.first, valid.first);
+    for (final o in valid) {
+      rect = rect.expandToInclude(Rect.fromPoints(o, o));
+    }
+    return rect;
+  }
+
+  /// Uma casa "invisível" por casa do tabuleiro, para leitores de tela e
+  /// para o navegador identificar cada casa. As casas mais próximas da
+  /// câmera ficam por cima, como no toque.
+  List<Widget> _cellSemantics(BuildContext context, _FlatLayout? flat) {
+    final l = context.l10n;
+    final n = widget.n;
+    final occupied = {for (final p in widget.pieces) p.pos};
+    final cells = [
+      for (var r = 0; r < n; r++)
+        for (var c = 0; c < n; c++) Pos(r, c),
+    ];
+    if (flat == null) {
+      final cam = _camera;
+      double depth(Pos p) => cam.depth(cellCenter(n, p));
+      cells.sort((a, b) {
+        final byPiece = (occupied.contains(a) ? 1 : 0).compareTo(
+          occupied.contains(b) ? 1 : 0,
+        );
+        return byPiece != 0 ? byPiece : depth(b).compareTo(depth(a));
+      });
+    }
+    return [
+      for (final p in cells)
+        Positioned.fromRect(
+          rect: _cellRect(p, flat),
+          child: Semantics(
+            button: true,
+            label: _cellLabel(l, p),
+            onTap: () => widget.onTap?.call(p),
+            child: const SizedBox.expand(),
+          ),
+        ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        _size = constraints.biggest;
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapUp: (d) {
-            final p = _pick(d.localPosition);
-            if (p != null) widget.onTap?.call(p);
-          },
-          onScaleStart: (d) {
-            _startYaw = _yaw;
-            _startPitch = _pitch;
-            _startZoom = _zoom;
-            _startFocal = d.localFocalPoint;
-          },
-          onScaleUpdate: (d) => setState(() {
-            if (d.pointerCount >= 2) {
-              _zoom = (_startZoom * d.scale).clamp(0.7, 2.2);
-            } else {
-              final delta = d.localFocalPoint - _startFocal;
-              _yaw = _startYaw - delta.dx * 0.008;
-              _pitch = (_startPitch + delta.dy * 0.006).clamp(0.4, 1.5);
-            }
-          }),
-          child: CustomPaint(
-            size: _size,
-            painter: _BoardPainter(this, _camera),
-          ),
-        );
-      },
+    return ValueListenableBuilder<bool>(
+      valueListenable: boardFlat,
+      builder: (context, flatSetting, _) => LayoutBuilder(
+        builder: (context, constraints) {
+          _size = constraints.biggest;
+          final flat = (widget.flat ?? flatSetting)
+              ? _FlatLayout(_size, widget.n)
+              : null;
+          final board = GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            excludeFromSemantics: true,
+            onTapUp: (d) {
+              final p = flat != null
+                  ? flat.pick(d.localPosition)
+                  : _pick(d.localPosition);
+              if (p != null) widget.onTap?.call(p);
+            },
+            onScaleStart: flat != null
+                ? null
+                : (d) {
+                    _startYaw = _yaw;
+                    _startPitch = _pitch;
+                    _startZoom = _zoom;
+                    _startFocal = d.localFocalPoint;
+                  },
+            onScaleUpdate: flat != null
+                ? null
+                : (d) => setState(() {
+                    if (d.pointerCount >= 2) {
+                      _zoom = (_startZoom * d.scale).clamp(0.7, 2.2);
+                    } else {
+                      final delta = d.localFocalPoint - _startFocal;
+                      _yaw = _startYaw - delta.dx * 0.008;
+                      _pitch = (_startPitch + delta.dy * 0.006).clamp(0.4, 1.5);
+                    }
+                  }),
+            child: CustomPaint(
+              size: _size,
+              painter: flat != null
+                  ? _FlatPainter(this, flat)
+                  : _BoardPainter(this, _camera),
+            ),
+          );
+          // Tabuleiro só de enfeite (tutorial): sem foco nem leitor de tela.
+          if (widget.onTap == null) return ExcludeSemantics(child: board);
+          return Focus(
+            focusNode: _focus,
+            onKeyEvent: _onKey,
+            child: Semantics(
+              container: true,
+              explicitChildNodes: true,
+              label: context.l10n.a11yBoard(widget.n),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  board,
+                  // Durante a comemoração a câmera gira: sem casas no leitor.
+                  if (!widget.celebrate) ..._cellSemantics(context, flat),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
+  }
+}
+
+/// Posição das casas na vista plana: tabuleiro quadrado no centro, com
+/// moldura onde vão as letras e números das casas.
+class _FlatLayout {
+  final int n;
+  late final double cell;
+  late final Offset origin;
+
+  _FlatLayout(Size size, this.n) {
+    cell = min(size.width, size.height) / (n + 1.1);
+    origin = size.center(Offset.zero) - Offset(n * cell / 2, n * cell / 2);
+  }
+
+  Rect rect(Pos p) => Rect.fromLTWH(
+    origin.dx + p.col * cell,
+    origin.dy + p.row * cell,
+    cell,
+    cell,
+  );
+
+  Offset at(Vec3 v) =>
+      origin + Offset((v.x + n / 2) * cell, (v.z + n / 2) * cell);
+
+  Pos? pick(Offset o) {
+    final col = ((o.dx - origin.dx) / cell).floor();
+    final row = ((o.dy - origin.dy) / cell).floor();
+    if (row < 0 || col < 0 || row >= n || col >= n) return null;
+    return Pos(row, col);
   }
 }
 
@@ -353,7 +584,7 @@ class _BoardPainter extends CustomPainter {
       n: w.n,
       theme: state._theme,
       pieces: w.pieces,
-      marks: w.marks,
+      marks: state._marks,
       blocked: w.blocked,
       labels: w.labels,
       position: state._piecePosition,
@@ -362,6 +593,212 @@ class _BoardPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_BoardPainter old) => true;
+}
+
+/// Vista 2D: o tabuleiro visto de cima, com as peças 3D de pé em cada casa
+/// (como num diagrama de xadrez).
+class _FlatPainter extends CustomPainter {
+  final Board3DState state;
+  final _FlatLayout layout;
+
+  _FlatPainter(this.state, this.layout);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = state.widget;
+    final theme = state._theme;
+    final n = layout.n;
+    final cell = layout.cell;
+    final board = Rect.fromLTWH(
+      layout.origin.dx,
+      layout.origin.dy,
+      n * cell,
+      n * cell,
+    );
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        board.inflate(cell * 0.45),
+        Radius.circular(cell * 0.15),
+      ),
+      Paint()..color = theme.frame,
+    );
+    for (var r = 0; r < n; r++) {
+      for (var c = 0; c < n; c++) {
+        canvas.drawRect(
+          layout.rect(Pos(r, c)),
+          Paint()..color = (r + c).isEven ? theme.light : theme.dark,
+        );
+      }
+    }
+    _drawCoordinates(canvas, board);
+
+    for (final b in w.blocked) {
+      final rect = layout.rect(b).deflate(cell * 0.08);
+      final radius = Radius.circular(cell * 0.12);
+      canvas
+        ..drawRRect(
+          RRect.fromRectAndRadius(rect.shift(Offset(0, cell * 0.05)), radius),
+          Paint()..color = _shadowColor,
+        )
+        ..drawRRect(
+          RRect.fromRectAndRadius(rect, radius),
+          Paint()..color = theme.block,
+        )
+        ..drawRRect(
+          RRect.fromRectAndRadius(rect.deflate(cell * 0.12), radius),
+          Paint()
+            ..color = Color.lerp(theme.block, const Color(0xFFFFFFFF), 0.12)!,
+        );
+    }
+
+    for (final m in state._marks) {
+      final rect = layout.rect(m.pos);
+      final paint = Paint()..color = m.color;
+      switch (m.kind) {
+        case MarkKind.fill:
+          canvas.drawRect(rect.deflate(cell * 0.01), paint);
+        case MarkKind.dot:
+          canvas.drawCircle(rect.center, cell * 0.11, paint);
+        case MarkKind.frame:
+          canvas.drawRect(
+            rect.deflate(cell * 0.05),
+            paint
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = cell * 0.09,
+          );
+      }
+    }
+
+    for (final e in w.labels.entries) {
+      _text(
+        canvas,
+        e.value,
+        layout.rect(e.key).center,
+        cell * 0.36,
+        const Color(0xFFFFFFFF),
+        shadow: true,
+      );
+    }
+
+    // Peças de trás para a frente, para a de baixo cobrir a de cima.
+    final pieces = [...w.pieces]
+      ..sort((a, b) => a.pos.row.compareTo(b.pos.row));
+    for (final p in pieces) {
+      final pos = state._piecePosition(p);
+      final base = layout.at(Vec3(pos.x, 0, pos.z)) + Offset(0, cell * 0.28);
+      final lift = pos.y * cell * 0.45;
+      canvas.drawOval(
+        Rect.fromCenter(
+          center: base,
+          width: cell * 0.62 / (1 + pos.y * 0.6),
+          height: cell * 0.2 / (1 + pos.y * 0.6),
+        ),
+        Paint()..color = _shadowColor,
+      );
+      final sprite = _sprite(
+        p.kind,
+        pieceColor(theme, p.role),
+        theme.shine,
+        cell,
+      );
+      canvas
+        ..save()
+        ..translate(base.dx - cell / 2, base.dy - cell * 0.92 - lift)
+        ..drawPicture(sprite)
+        ..restore();
+    }
+  }
+
+  void _drawCoordinates(Canvas canvas, Rect board) {
+    final n = layout.n;
+    final cell = layout.cell;
+    const color = Color(0x99FFFFFF);
+    for (var i = 0; i < n; i++) {
+      _text(
+        canvas,
+        String.fromCharCode(97 + i),
+        Offset(board.left + (i + 0.5) * cell, board.bottom + cell * 0.22),
+        cell * 0.24,
+        color,
+      );
+      _text(
+        canvas,
+        '${n - i}',
+        Offset(board.left - cell * 0.22, board.top + (i + 0.5) * cell),
+        cell * 0.24,
+        color,
+      );
+    }
+  }
+
+  static void _text(
+    Canvas canvas,
+    String value,
+    Offset center,
+    double size,
+    Color color, {
+    bool shadow = false,
+  }) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: value,
+        style: TextStyle(
+          color: color,
+          fontSize: size,
+          fontWeight: FontWeight.w800,
+          shadows: shadow
+              ? const [Shadow(blurRadius: 3, color: Color(0xCC000000))]
+              : null,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    painter.paint(
+      canvas,
+      center - Offset(painter.width / 2, painter.height / 2),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_FlatPainter old) => true;
+}
+
+final Map<String, ui.Picture> _sprites = {};
+
+/// Desenho da peça vista de lado, do tamanho de uma casa (fica guardado).
+ui.Picture _sprite(PieceKind kind, Color color, double shine, double cell) {
+  if (_sprites.length > 40) _sprites.clear();
+  return _sprites.putIfAbsent(
+    '$kind/${color.toARGB32()}/$shine/${cell.round()}',
+    () {
+      final size = Size.square(cell);
+      final recorder = ui.PictureRecorder();
+      final height = pieceHeight(kind) * pieceScale(kind);
+      Renderer(
+        Camera(
+          yaw: 0,
+          pitch: 0.35,
+          distance: height * 1.55,
+          size: size,
+          target: Vec3(0, height * 0.5, 0),
+        ),
+      ).draw(
+        Canvas(recorder, Offset.zero & size),
+        sorted: [
+          Instance(
+            pieceMesh(kind),
+            const Vec3(0, 0, 0),
+            scale: pieceScale(kind),
+            color: color,
+            shine: shine,
+            rotY: kind == PieceKind.knight ? knightFacing(0) : 0,
+          ),
+        ],
+      );
+      return recorder.endRecording();
+    },
+  );
 }
 
 /// Desenha o tabuleiro com peças, marcas, blocos e números. Usado pela tela

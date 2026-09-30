@@ -482,4 +482,83 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tutorialAllRules => 'See all the rules';
+
+  @override
+  String get welcomeTitle => 'New here?';
+
+  @override
+  String get welcomeBody =>
+      'Three logic puzzles on a chessboard. Pick one below to start right away, or watch how to play in 30 seconds.';
+
+  @override
+  String get welcomeHowTo => 'How to play';
+
+  @override
+  String get welcomeDismiss => 'Got it';
+
+  @override
+  String get classicDesc => 'Empty board, no levels: find every solution.';
+
+  @override
+  String get challengesDesc =>
+      'Levels with fixed queens and a single solution.';
+
+  @override
+  String get tutorialPlayMode => 'Play this mode';
+
+  @override
+  String get view2d => 'Flat 2D view';
+
+  @override
+  String get view3d => '3D view';
+
+  @override
+  String get tapHint => 'Tap a square to play';
+
+  @override
+  String a11yBoard(int n) {
+    return 'Board $n by $n. Use the arrow keys to choose a square and Enter to play.';
+  }
+
+  @override
+  String get a11yEmpty => 'empty';
+
+  @override
+  String get a11yQueen => 'queen';
+
+  @override
+  String get a11yFixedQueen => 'fixed queen';
+
+  @override
+  String get a11yKnight => 'knight';
+
+  @override
+  String get a11yConflict => 'under attack';
+
+  @override
+  String get a11yBlocked => 'blocked';
+
+  @override
+  String a11yStep(int step) {
+    return 'step $step';
+  }
+
+  @override
+  String get a11yAttacked => 'attacked';
+
+  @override
+  String get a11yCanJump => 'you can jump here';
+
+  @override
+  String get a11yHint => 'hint';
+
+  @override
+  String a11yHints(int count) {
+    return '$count hints';
+  }
+
+  @override
+  String a11yStars(int count) {
+    return '$count stars';
+  }
 }

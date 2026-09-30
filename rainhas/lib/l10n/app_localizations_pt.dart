@@ -481,4 +481,83 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get tutorialAllRules => 'Ver todas as regras';
+
+  @override
+  String get welcomeTitle => 'Novo por aqui?';
+
+  @override
+  String get welcomeBody =>
+      'São três jogos de lógica no tabuleiro. Escolha um abaixo para começar agora, ou veja como jogar em 30 segundos.';
+
+  @override
+  String get welcomeHowTo => 'Ver como jogar';
+
+  @override
+  String get welcomeDismiss => 'Entendi';
+
+  @override
+  String get classicDesc =>
+      'Tabuleiro vazio, sem fases: ache todas as soluções.';
+
+  @override
+  String get challengesDesc => 'Fases com rainhas fixas e uma única solução.';
+
+  @override
+  String get tutorialPlayMode => 'Jogar este modo';
+
+  @override
+  String get view2d => 'Vista 2D (plana)';
+
+  @override
+  String get view3d => 'Vista 3D';
+
+  @override
+  String get tapHint => 'Toque numa casa para jogar';
+
+  @override
+  String a11yBoard(int n) {
+    return 'Tabuleiro $n por $n. Use as setas para escolher a casa e Enter para jogar.';
+  }
+
+  @override
+  String get a11yEmpty => 'vazia';
+
+  @override
+  String get a11yQueen => 'rainha';
+
+  @override
+  String get a11yFixedQueen => 'rainha fixa';
+
+  @override
+  String get a11yKnight => 'cavalo';
+
+  @override
+  String get a11yConflict => 'em conflito';
+
+  @override
+  String get a11yBlocked => 'bloqueada';
+
+  @override
+  String a11yStep(int step) {
+    return 'passo $step';
+  }
+
+  @override
+  String get a11yAttacked => 'atacada';
+
+  @override
+  String get a11yCanJump => 'dá para pular aqui';
+
+  @override
+  String get a11yHint => 'dica';
+
+  @override
+  String a11yHints(int count) {
+    return '$count dicas';
+  }
+
+  @override
+  String a11yStars(int count) {
+    return '$count estrelas';
+  }
 }

@@ -38,6 +38,15 @@ final appLanguage = ValueNotifier<String>('');
 /// Idiomas oferecidos no seletor, com o nome de cada um no próprio idioma.
 const languageNames = {'pt': 'Português', 'en': 'English', 'es': 'Español'};
 
+/// Idioma pedido no endereço (`.../jogar/?lang=pt`), se o app tiver ele.
+/// Vale só para a visita; não muda a escolha salva.
+String? languageFromUrl([Uri? url]) {
+  final lang = (url ?? Uri.base).queryParameters['lang']?.toLowerCase();
+  if (lang == null || lang.length < 2) return null;
+  final code = lang.substring(0, 2);
+  return languageNames.containsKey(code) ? code : null;
+}
+
 /// Usa o idioma do aparelho se o app tiver tradução; senão, inglês.
 Locale resolveLocale(List<Locale>? preferred, Iterable<Locale> supported) {
   for (final locale in preferred ?? const <Locale>[]) {
