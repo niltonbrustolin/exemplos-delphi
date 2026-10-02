@@ -69,3 +69,7 @@ class LevelRef {
 
 /// Estrelas conforme as dicas usadas.
 int starsFor(int hintsUsed) => hintsUsed == 0 ? 3 : (hintsUsed == 1 ? 2 : 1);
+
+/// Primeira fase recomendada para quem nunca jogou: Desafios das Rainhas,
+/// fase 1.
+final firstLevel = LevelRef(GameMode.queens, GameMode.queens.sizes.first, 1);

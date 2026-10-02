@@ -560,4 +560,22 @@ class AppLocalizationsPt extends AppLocalizations {
   String a11yStars(int count) {
     return '$count estrelas';
   }
+
+  @override
+  String get statTime => 'tempo';
+
+  @override
+  String get statQueens => 'rainhas';
+
+  @override
+  String get statKnights => 'cavalos';
+
+  @override
+  String get statSquares => 'casas';
+
+  @override
+  String get statHintsUsed => 'dicas usadas';
+
+  @override
+  String get startFirstLevel => 'Começar pela fase 1';
 }

@@ -148,5 +148,11 @@
   "a11yCanJump": "puedes saltar aquí",
   "a11yHint": "pista",
   "a11yHints": "{count} pistas",
-  "a11yStars": "{count} estrellas"
+  "a11yStars": "{count} estrellas",
+  "statTime": "tiempo",
+  "statQueens": "reinas",
+  "statKnights": "caballos",
+  "statSquares": "casillas",
+  "statHintsUsed": "pistas usadas",
+  "startFirstLevel": "Empezar por el nivel 1"
 }

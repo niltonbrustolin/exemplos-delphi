@@ -17,7 +17,8 @@ class LevelSelectScreen extends StatefulWidget {
   State<LevelSelectScreen> createState() => _LevelSelectScreenState();
 }
 
-class _LevelSelectScreenState extends State<LevelSelectScreen> {
+class _LevelSelectScreenState extends State<LevelSelectScreen>
+    with ProgressListener {
   Future<void> _play(LevelRef level) async {
     await openLevel(context, level);
     if (mounted) setState(() {}); // atualiza estrelas e desbloqueios

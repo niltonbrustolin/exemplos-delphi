@@ -237,74 +237,117 @@ class GameScaffold extends StatelessWidget {
   }
 
   Widget _build(BuildContext context, bool flat) {
+    final l = context.l10n;
+    final buttons = [
+      OutlinedButton.icon(
+        onPressed: onUndo,
+        icon: const Icon(Icons.undo),
+        label: Text(l.undo),
+      ),
+      FilledButton.icon(
+        onPressed: onHint,
+        icon: const Icon(Icons.lightbulb),
+        label: Text(l.hintButton(Progress.instance.hints)),
+      ),
+    ];
+    final hintLine = Text(
+      flat ? l.tapHint : l.dragHint,
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.bodySmall,
+    );
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        titleSpacing: 0,
+        // Em tela estreita o título diminui em vez de ser cortado.
+        title: FittedBox(fit: BoxFit.scaleDown, child: Text(title)),
         actions: [
           ...extraActions,
           const ViewToggle(),
-          if (!flat)
-            IconButton(
-              tooltip: context.l10n.centerCamera,
-              onPressed: () => boardKey.currentState?.resetCamera(),
-              icon: const Icon(Icons.threed_rotation),
-            ),
           PopupMenuButton<String>(
-            onSelected: (v) => v == 'restart' ? onRestart() : onHelp(),
+            onSelected: (v) => switch (v) {
+              'restart' => onRestart(),
+              'camera' => boardKey.currentState?.resetCamera(),
+              _ => onHelp(),
+            },
             itemBuilder: (_) => [
-              PopupMenuItem(
-                value: 'restart',
-                child: Text(context.l10n.restart),
-              ),
-              PopupMenuItem(value: 'help', child: Text(context.l10n.howToPlay)),
+              if (!flat)
+                PopupMenuItem(value: 'camera', child: Text(l.centerCamera)),
+              PopupMenuItem(value: 'restart', child: Text(l.restart)),
+              PopupMenuItem(value: 'help', child: Text(l.howToPlay)),
             ],
           ),
         ],
       ),
       bottomNavigationBar: const BannerAdBox(),
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: stats,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    flat ? context.l10n.tapHint : context.l10n.dragHint,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Expanded(child: board),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: onUndo,
-                          icon: const Icon(Icons.undo),
-                          label: Text(context.l10n.undo),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: FilledButton.icon(
-                          onPressed: onHint,
-                          icon: const Icon(Icons.lightbulb),
-                          label: Text(
-                            context.l10n.hintButton(Progress.instance.hints),
+        child: LayoutBuilder(
+          builder: (context, box) {
+            // Celular deitado ou tela larga: tabuleiro à esquerda, ocupando
+            // toda a altura, e o resto numa coluna ao lado.
+            if (box.maxWidth > box.maxHeight * 1.2) {
+              return Padding(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    Expanded(child: board),
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      width: 240,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Wrap(
+                            alignment: WrapAlignment.spaceAround,
+                            spacing: 16,
+                            runSpacing: 8,
+                            children: stats,
                           ),
+                          const SizedBox(height: 8),
+                          hintLine,
+                          const SizedBox(height: 16),
+                          for (final b in buttons) ...[
+                            SizedBox(width: double.infinity, child: b),
+                            const SizedBox(height: 8),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: Padding(
+                  // Margem pequena nas laterais: casas maiores nos
+                  // tabuleiros grandes.
+                  padding: const EdgeInsets.fromLTRB(4, 8, 4, 12),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: stats,
+                      ),
+                      const SizedBox(height: 4),
+                      hintLine,
+                      Expanded(child: board),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Row(
+                          children: [
+                            Expanded(child: buttons[0]),
+                            const SizedBox(width: 12),
+                            Expanded(child: buttons[1]),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
@@ -331,20 +374,34 @@ class ViewToggle extends StatelessWidget {
   }
 }
 
+/// Indicador do topo da partida, com o que ele mede escrito embaixo.
 class GameStat extends StatelessWidget {
   final IconData icon;
   final String text;
+  final String label;
 
-  const GameStat(this.icon, this.text, {super.key});
+  const GameStat(this.icon, this.text, this.label, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 22),
-        const SizedBox(width: 6),
-        Text(text, style: Theme.of(context).textTheme.titleMedium),
-      ],
+    final theme = Theme.of(context).textTheme;
+    return Semantics(
+      label: '$label: $text',
+      excludeSemantics: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 20),
+              const SizedBox(width: 6),
+              Text(text, style: theme.titleMedium),
+            ],
+          ),
+          Text(label, style: theme.labelSmall),
+        ],
+      ),
     );
   }
 }

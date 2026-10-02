@@ -81,15 +81,19 @@ class _KnightsGameScreenState extends State<KnightsGameScreen> with GameClock {
 
   Future<void> _hint() async {
     final hint = knightsHint(_level, _placed);
-    if (hint == null || !await requestHint(context) || !mounted) return;
+    if (hint == null) return;
+    String message() => switch (hint) {
+      PlaceHint() => context.l10n.hintPlaceKnight,
+      RemoveHint() => context.l10n.hintRemoveKnight,
+    };
+    // A dica atual ainda vale (o tabuleiro não mudou): mostra de novo, grátis.
+    if (_highlight == hint.pos) return showSnack(context, message());
+    if (!await requestHint(context) || !mounted) return;
     setState(() {
       _hints++;
       _highlight = hint.pos;
     });
-    showSnack(context, switch (hint) {
-      PlaceHint() => context.l10n.hintPlaceKnight,
-      RemoveHint() => context.l10n.hintRemoveKnight,
-    });
+    showSnack(context, message());
   }
 
   Future<void> _onWin() async {
@@ -151,12 +155,21 @@ class _KnightsGameScreenState extends State<KnightsGameScreen> with GameClock {
         ),
       ],
       stats: [
-        GameStat(Icons.timer_outlined, formatTime(seconds)),
+        GameStat(
+          Icons.timer_outlined,
+          formatTime(seconds),
+          context.l10n.statTime,
+        ),
         GameStat(
           Icons.emoji_events_outlined,
           '${_placed.length} / ${_level.target}',
+          context.l10n.statKnights,
         ),
-        GameStat(Icons.lightbulb_outline, '$_hints'),
+        GameStat(
+          Icons.lightbulb_outline,
+          '$_hints',
+          context.l10n.statHintsUsed,
+        ),
       ],
       board: Board3D(
         key: _boardKey,

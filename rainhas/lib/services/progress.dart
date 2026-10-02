@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../game/levels.dart';
@@ -20,6 +21,12 @@ class Progress {
 
   final SharedPreferences _prefs;
 
+  /// Avisa as telas (seletor de fases, tela inicial...) que o progresso
+  /// mudou, para que se redesenhem mesmo sem voltar por elas.
+  final changes = ValueNotifier<int>(0);
+
+  void _changed() => changes.value++;
+
   static Future<void> load() async {
     instance = Progress._(await SharedPreferences.getInstance());
   }
@@ -35,6 +42,7 @@ class Progress {
     final found = foundSolutions(n);
     if (!found.add(cols.join(','))) return false;
     await _prefs.setStringList('found_$n', found.toList());
+    _changed();
     return true;
   }
 
@@ -57,7 +65,10 @@ class Progress {
   /// pela primeira vez.
   Future<bool> saveStars(LevelRef level, int stars) async {
     final old = this.stars(level);
-    if (stars > old) await _prefs.setInt('stars_${level.key}', stars);
+    if (stars > old) {
+      await _prefs.setInt('stars_${level.key}', stars);
+      _changed();
+    }
     return old == 0;
   }
 
@@ -96,6 +107,7 @@ class Progress {
     await _prefs.setInt('daily_last', day);
     await _prefs.setInt('daily_streak', value);
     if (value > bestStreak) await _prefs.setInt('daily_best', value);
+    _changed();
     return value;
   }
 
@@ -103,12 +115,16 @@ class Progress {
 
   int get hints => _prefs.getInt('hints') ?? initialHints;
 
-  Future<void> addHints(int amount) => _prefs.setInt('hints', hints + amount);
+  Future<void> addHints(int amount) async {
+    await _prefs.setInt('hints', hints + amount);
+    _changed();
+  }
 
   /// Gasta uma dica; retorna `false` se não havia saldo.
   Future<bool> spendHint() async {
     if (hints <= 0) return false;
     await _prefs.setInt('hints', hints - 1);
+    _changed();
     return true;
   }
 
@@ -158,6 +174,7 @@ class Progress {
       {..._purchases, productId}.toList(),
     );
     if (productId == starterPackProduct) await addHints(starterPackHints);
+    _changed();
     return true;
   }
 
@@ -208,3 +225,23 @@ final Set<String> starterPackIncludes = {
   for (final t in boardThemes)
     if (t.productId != null) t.productId!,
 };
+
+/// Para telas que mostram o progresso: redesenha sempre que ele muda
+/// (inclusive quando o jogador avança por "Próxima" sem voltar à tela).
+mixin ProgressListener<T extends StatefulWidget> on State<T> {
+  void _onProgress() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Progress.instance.changes.addListener(_onProgress);
+  }
+
+  @override
+  void dispose() {
+    Progress.instance.changes.removeListener(_onProgress);
+    super.dispose();
+  }
+}

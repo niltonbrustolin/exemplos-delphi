@@ -20,7 +20,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with ProgressListener {
   Future<void> _go(Widget screen) async {
     await Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
     if (mounted) setState(() {}); // atualiza dicas e estrelas
@@ -116,7 +116,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 20),
                 if (!progress.tutorialSeen)
-                  _WelcomeCard(onHowTo: _tutorial, onDismiss: _dismissWelcome),
+                  _WelcomeCard(
+                    onStart: () {
+                      _dismissWelcome();
+                      openLevel(context, firstLevel);
+                    },
+                    onHowTo: _tutorial,
+                    onDismiss: _dismissWelcome,
+                  ),
                 _DailyCard(
                   onPlay: () async {
                     await openLevel(context, dailyLevel(today));
@@ -282,10 +289,15 @@ class _IconAction extends StatelessWidget {
 /// Cartão de boas-vindas da primeira visita: diz o que é o jogo e deixa
 /// o jogador escolher entre começar já ou ver o tutorial.
 class _WelcomeCard extends StatelessWidget {
+  final VoidCallback onStart;
   final VoidCallback onHowTo;
   final VoidCallback onDismiss;
 
-  const _WelcomeCard({required this.onHowTo, required this.onDismiss});
+  const _WelcomeCard({
+    required this.onStart,
+    required this.onHowTo,
+    required this.onDismiss,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -305,13 +317,21 @@ class _WelcomeCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(l.welcomeBody),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: onStart,
+                icon: const Icon(Icons.play_arrow_rounded),
+                label: Text(l.startFirstLevel),
+              ),
+            ),
             Wrap(
               alignment: WrapAlignment.end,
               spacing: 8,
               children: [
                 TextButton(onPressed: onDismiss, child: Text(l.welcomeDismiss)),
-                FilledButton.tonalIcon(
+                TextButton.icon(
                   onPressed: onHowTo,
                   icon: const Icon(Icons.play_circle_outline),
                   label: Text(l.welcomeHowTo),

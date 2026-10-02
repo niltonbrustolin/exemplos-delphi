@@ -107,20 +107,21 @@ class _TourGameScreenState extends State<TourGameScreen> with GameClock {
         keep--;
       }
     }
+    final target = route != null
+        ? (route[_path.length], _hintColor)
+        : (_path[keep - 1], _backColor);
+    final back = _path.length - keep;
+    String message() => route != null
+        ? context.l10n.tourHintJump
+        : context.l10n.tourHintBack(back, keep);
+    // A dica atual ainda vale (o caminho não mudou): mostra de novo, grátis.
+    if (_highlight == target) return showSnack(context, message());
     if (!await requestHint(context) || !mounted) return;
     setState(() {
       _hints++;
-      _highlight = route != null
-          ? (route[_path.length], _hintColor)
-          : (_path[keep - 1], _backColor);
+      _highlight = target;
     });
-    final back = _path.length - keep;
-    showSnack(
-      context,
-      route != null
-          ? context.l10n.tourHintJump
-          : context.l10n.tourHintBack(back, keep),
-    );
+    showSnack(context, message());
   }
 
   Future<void> _onWin() async {
@@ -171,9 +172,21 @@ class _TourGameScreenState extends State<TourGameScreen> with GameClock {
       onUndo: _path.length <= 1 || _won ? null : _undo,
       onHint: _won ? null : _hint,
       stats: [
-        GameStat(Icons.timer_outlined, formatTime(seconds)),
-        GameStat(Icons.route, '${_path.length} / ${_tour.squares}'),
-        GameStat(Icons.lightbulb_outline, '$_hints'),
+        GameStat(
+          Icons.timer_outlined,
+          formatTime(seconds),
+          context.l10n.statTime,
+        ),
+        GameStat(
+          Icons.route,
+          '${_path.length} / ${_tour.squares}',
+          context.l10n.statSquares,
+        ),
+        GameStat(
+          Icons.lightbulb_outline,
+          '$_hints',
+          context.l10n.statHintsUsed,
+        ),
       ],
       board: Board3D(
         key: _boardKey,

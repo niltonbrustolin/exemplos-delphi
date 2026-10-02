@@ -993,6 +993,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} stars'**
   String a11yStars(int count);
+
+  /// No description provided for @statTime.
+  ///
+  /// In en, this message translates to:
+  /// **'time'**
+  String get statTime;
+
+  /// No description provided for @statQueens.
+  ///
+  /// In en, this message translates to:
+  /// **'queens'**
+  String get statQueens;
+
+  /// No description provided for @statKnights.
+  ///
+  /// In en, this message translates to:
+  /// **'knights'**
+  String get statKnights;
+
+  /// No description provided for @statSquares.
+  ///
+  /// In en, this message translates to:
+  /// **'squares'**
+  String get statSquares;
+
+  /// No description provided for @statHintsUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'hints used'**
+  String get statHintsUsed;
+
+  /// No description provided for @startFirstLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with level 1'**
+  String get startFirstLevel;
 }
 
 class _AppLocalizationsDelegate

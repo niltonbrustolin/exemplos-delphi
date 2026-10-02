@@ -16,8 +16,12 @@ o problema das oito rainhas e desafios com o cavalo. Tabuleiro e peças em
 ## O que o app tem
 
 - **Entrada direta**: o app abre na tela inicial, com cada modo explicado
-  numa linha. Na primeira visita aparece o cartão "Novo por aqui?", que
-  oferece o tutorial sem obrigar ninguém a vê-lo.
+  numa linha. Na primeira visita aparece o cartão "Novo por aqui?", com
+  "Começar pela fase 1" e o tutorial opcional.
+- **Tela de jogo**: indicadores com legenda (tempo, peças/casas, dicas usadas
+  na fase; o saldo de dicas fica no botão Dica). Com o celular deitado, o
+  tabuleiro ocupa a altura toda e os botões vão para o lado. Pedir de novo a
+  mesma dica, sem mexer no tabuleiro, não gasta outra dica.
 - **Tutorial animado ("Como jogar")**: três páginas, uma por jogo, com um
   tabuleiro que joga sozinho e legendas. Cada página tem "Jogar este modo",
   que leva direto ao jogo. Os roteiros ficam em `lib/game/demos.dart`.

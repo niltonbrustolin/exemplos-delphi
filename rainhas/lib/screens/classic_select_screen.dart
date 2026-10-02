@@ -16,7 +16,8 @@ class ClassicSelectScreen extends StatefulWidget {
   State<ClassicSelectScreen> createState() => _ClassicSelectScreenState();
 }
 
-class _ClassicSelectScreenState extends State<ClassicSelectScreen> {
+class _ClassicSelectScreenState extends State<ClassicSelectScreen>
+    with ProgressListener {
   Future<void> _play(int n) async {
     await Navigator.push(
       context,

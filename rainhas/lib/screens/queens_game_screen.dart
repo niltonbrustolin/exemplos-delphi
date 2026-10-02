@@ -88,15 +88,19 @@ class _QueensGameScreenState extends State<QueensGameScreen> with GameClock {
 
   Future<void> _hint() async {
     final hint = computeHint(n, _fixed, _placed);
-    if (hint == null || !await requestHint(context) || !mounted) return;
+    if (hint == null) return;
+    String message() => switch (hint) {
+      PlaceHint() => context.l10n.hintPlaceQueen,
+      RemoveHint() => context.l10n.hintRemoveQueen,
+    };
+    // A dica atual ainda vale (o tabuleiro não mudou): mostra de novo, grátis.
+    if (_highlight == hint.pos) return showSnack(context, message());
+    if (!await requestHint(context) || !mounted) return;
     setState(() {
       _hints++;
       _highlight = hint.pos;
     });
-    showSnack(context, switch (hint) {
-      PlaceHint() => context.l10n.hintPlaceQueen,
-      RemoveHint() => context.l10n.hintRemoveQueen,
-    });
+    showSnack(context, message());
   }
 
   Future<void> _onWin() async {
@@ -213,9 +217,21 @@ class _QueensGameScreenState extends State<QueensGameScreen> with GameClock {
         ),
       ],
       stats: [
-        GameStat(Icons.timer_outlined, formatTime(seconds)),
-        GameStat(Icons.emoji_events_outlined, '${all.length} / $n'),
-        GameStat(Icons.lightbulb_outline, '$_hints'),
+        GameStat(
+          Icons.timer_outlined,
+          formatTime(seconds),
+          context.l10n.statTime,
+        ),
+        GameStat(
+          Icons.emoji_events_outlined,
+          '${all.length} / $n',
+          context.l10n.statQueens,
+        ),
+        GameStat(
+          Icons.lightbulb_outline,
+          '$_hints',
+          context.l10n.statHintsUsed,
+        ),
       ],
       board: Board3D(
         key: _boardKey,

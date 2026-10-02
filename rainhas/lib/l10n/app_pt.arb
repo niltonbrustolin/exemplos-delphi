@@ -148,5 +148,11 @@
   "a11yCanJump": "dá para pular aqui",
   "a11yHint": "dica",
   "a11yHints": "{count} dicas",
-  "a11yStars": "{count} estrelas"
+  "a11yStars": "{count} estrelas",
+  "statTime": "tempo",
+  "statQueens": "rainhas",
+  "statKnights": "cavalos",
+  "statSquares": "casas",
+  "statHintsUsed": "dicas usadas",
+  "startFirstLevel": "Começar pela fase 1"
 }

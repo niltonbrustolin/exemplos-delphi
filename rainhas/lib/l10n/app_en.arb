@@ -389,5 +389,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "statTime": "time",
+  "statQueens": "queens",
+  "statKnights": "knights",
+  "statSquares": "squares",
+  "statHintsUsed": "hints used",
+  "startFirstLevel": "Start with level 1"
 }
